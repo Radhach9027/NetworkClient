@@ -32,14 +32,14 @@ extension NetworkError {
         static let codableConversionErrorMessage = "Issue in converting NetworkErrors.json via codable model."
     }
     
-    static var noInternet: NetworkError {
+    public static var noInternet: NetworkError {
         NetworkError(title: Copy.noInternetTitle,
                      code: NetworkCodes.noInternet,
                      errorMessage: Copy.noInternet,
                      userMessage: .empty)
     }
     
-    static var badUrl: NetworkError {
+    public static var badUrl: NetworkError {
         NetworkError(title: Copy.badUrlTitle,
                      code: NetworkCodes.badUrl,
                      errorMessage: Copy.badUrl,
