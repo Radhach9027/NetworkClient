@@ -1,10 +1,10 @@
 import Foundation
 
 public struct NetworkError: Error, Codable {
-    let title: String
-    let code: Int
-    let errorMessage: String
-    let userMessage: String
+    public let title: String
+    public let code: Int
+    public let errorMessage: String
+    public let userMessage: String
 }
 
 extension NetworkError {
