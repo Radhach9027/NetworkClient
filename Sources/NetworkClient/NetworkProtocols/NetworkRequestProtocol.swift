@@ -51,7 +51,7 @@ extension NetworkRequestProtocol {
         Network.isInternetReachable
     }
     
-    func makeRequest() throws -> URLRequest {
+    public func makeRequest() throws -> URLRequest {
         
         guard let url = urlComponents?.url else {
             throw NetworkError.badUrl
