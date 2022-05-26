@@ -1,10 +1,5 @@
 import Foundation
 
-public protocol NetworkCacheProtocol {
-    var clearCache: Bool { get }
-    func manageInternetConnectivityBasedOnCache(request: URLRequest) -> NetworkError?
-}
-
 public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCacheProtocol {
     var urlPath: String { get }
     var httpMethod: NetworkRequestMethod { get }
@@ -27,10 +22,6 @@ extension NetworkRequestProtocol {
     
     var apiKey: String? {
         nil
-    }
-    
-    var clearCache: Bool {
-        false
     }
     
     private func makeBody() throws -> Data? {
