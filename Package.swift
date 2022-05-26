@@ -1,0 +1,24 @@
+// swift-tools-version:5.5
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "NetworkClient",
+    products: [
+        .library(
+            name: "NetworkClient",
+            targets: ["NetworkClient"]),
+    ],
+    dependencies: [
+         .package(url: "https://github.com/ashleymills/Reachability.swift", branch: "master"),
+    ],
+    targets: [
+        .target(
+            name: "NetworkClient",
+            dependencies: [.product(name: "Reachability", package: "Reachability.swift")]),
+        .testTarget(
+            name: "NetworkClientTests",
+            dependencies: ["NetworkClient"]),
+    ]
+)
