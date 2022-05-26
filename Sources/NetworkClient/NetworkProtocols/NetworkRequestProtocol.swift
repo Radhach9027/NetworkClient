@@ -10,7 +10,7 @@ public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCache
     func makeRequest() throws -> URLRequest
 }
 
-extension NetworkRequestProtocol {
+public extension NetworkRequestProtocol {
     
     var httpHeaderFields: NetworkHTTPHeaderField? {
         nil
@@ -24,25 +24,11 @@ extension NetworkRequestProtocol {
         nil
     }
     
-    private func makeBody() throws -> Data? {
-        guard let parameters = httpBodyParameters else {
-            return nil
-        }
-        
-        do {
-            let jsonData =  try JSONSerialization.data(withJSONObject: parameters,
-                                                       options: .prettyPrinted)
-            return jsonData
-        } catch {
-            throw error
-        }
-    }
-    
-    public var isNetworkReachable: Bool {
+    var isNetworkReachable: Bool {
         Network.isInternetReachable
     }
     
-    public func makeRequest() throws -> URLRequest {
+    func makeRequest() throws -> URLRequest {
         
         guard let url = urlComponents?.url else {
             throw NetworkError.badUrl
@@ -79,8 +65,25 @@ extension NetworkRequestProtocol {
         
         return nil
     }
+}
+
+private extension NetworkRequestProtocol {
     
-    private func clearCacheForRequest(request: URLRequest) {
+    func makeBody() throws -> Data? {
+        guard let parameters = httpBodyParameters else {
+            return nil
+        }
+        
+        do {
+            let jsonData =  try JSONSerialization.data(withJSONObject: parameters,
+                                                       options: .prettyPrinted)
+            return jsonData
+        } catch {
+            throw error
+        }
+    }
+    
+    func clearCacheForRequest(request: URLRequest) {
         if clearCache {
             URLCache.shared.removeCachedResponse(for: request)
         }
