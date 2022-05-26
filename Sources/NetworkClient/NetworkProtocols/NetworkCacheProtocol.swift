@@ -10,8 +10,4 @@ public extension NetworkCacheProtocol {
     var clearCache: Bool {
         false
     }
-    
-    func manageInternetConnectivityBasedOnCache(request: URLRequest) -> NetworkError? {
-        nil
-    }
 }
