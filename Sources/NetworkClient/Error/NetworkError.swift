@@ -56,7 +56,7 @@ extension NetworkError {
     
     private static func makeNetworkErrorModel() throws -> [NetworkError]? {
         
-        guard let ressourceURL =  BundleClass().bundle.url(forResource: Copy.fileName,
+        guard let ressourceURL =  Bundle.main.url(forResource: Copy.fileName,
                                                            withExtension: Copy.fileType) else {
             return nil
         }
