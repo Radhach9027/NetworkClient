@@ -47,7 +47,7 @@ extension NetworkRequestProtocol {
         }
     }
     
-    var isNetworkReachable: Bool {
+    public var isNetworkReachable: Bool {
         Network.isInternetReachable
     }
     
