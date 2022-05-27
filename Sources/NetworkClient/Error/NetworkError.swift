@@ -46,6 +46,12 @@ extension NetworkError {
                      userMessage: .empty)
     }
     
+    public static var unknown: NetworkError {
+        NetworkError(title: Copy.HTTPresponseNil,
+                     code: NetworkCodes.unknown,
+                     errorMessage: .empty,
+                     userMessage: Copy.unknown)
+    }
     
     private static var errorInCodableConversion: NetworkError {
         NetworkError(title: Copy.codableConversionError,
@@ -69,13 +75,6 @@ extension NetworkError {
         } catch {
             throw error
         }
-    }
-    
-    private static var unknown: NetworkError {
-        NetworkError(title: Copy.HTTPresponseNil,
-                     code: NetworkCodes.unknown,
-                     errorMessage: .empty,
-                     userMessage: Copy.unknown)
     }
     
     static func validateHTTPError(urlResponse: HTTPURLResponse?) -> NetworkError? {
