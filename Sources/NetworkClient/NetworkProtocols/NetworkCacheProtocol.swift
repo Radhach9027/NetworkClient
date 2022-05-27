@@ -6,7 +6,6 @@ public protocol NetworkCacheProtocol {
 }
 
 public extension NetworkCacheProtocol {
-    
     var clearCache: Bool {
         false
     }

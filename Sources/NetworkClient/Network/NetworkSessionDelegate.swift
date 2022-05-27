@@ -115,7 +115,7 @@ private extension NetworkSessionDelegate {
         
         if let serverPublicKey = SecTrustCopyKey(trust),
            let serverPublicKeyData: NSData =  SecKeyCopyExternalRepresentation(serverPublicKey, nil) {
-            let keyHash = serverPublicKeyData.description.sha256()
+            let keyHash = serverPublicKeyData.description.sha256
             return keyHash == hash ? true : false
         }
         return false
@@ -127,7 +127,7 @@ private extension NetworkSessionDelegate {
                            serverTrust: SecTrust)-> Bool {
         
         let serverCertificateData:NSData = SecCertificateCopyData(certificate)
-        let certHash = serverCertificateData.description.sha256()
+        let certHash = serverCertificateData.description.sha256
         return certHash == hash ? true : false
     }
 }
