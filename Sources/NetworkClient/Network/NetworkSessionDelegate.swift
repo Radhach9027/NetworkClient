@@ -13,6 +13,7 @@ final class NetworkSessionDelegate: NSObject,
     
     var progressSubject: CurrentValueSubject<DownloadNetworkResponse, NetworkError>
     private var pinning: SSLPinning?
+    var saveToLocation: URL?
     
     init(
         pinning: SSLPinning? = nil,
@@ -100,8 +101,12 @@ final class NetworkSessionDelegate: NSObject,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        progressSubject.send(.response(data: location))
-        progressSubject.send(completion: .finished)
+        guard let exactLocation = saveToLocation else {
+            progressSubject.send(.response(data: location))
+            progressSubject.send(completion: .finished)
+            return
+        }
+        save(file: exactLocation, downloadedUrl: location)
     }
     
     func urlSession(
@@ -120,6 +125,27 @@ final class NetworkSessionDelegate: NSObject,
 }
 
 private extension NetworkSessionDelegate {
+    
+    func save(file: URL, downloadedUrl: URL) {
+        do {
+            if FileManager.default.fileExists(atPath: file.path) {
+                try FileManager.default.removeItem(at: file)
+            }
+            
+            try FileManager.default.copyItem(
+                at: downloadedUrl,
+                to: file
+            )
+        }
+        catch let fileError {
+            progressSubject.send(completion: .failure(.init(
+                title: "Download To Location",
+                code: -222,
+                errorMessage: fileError.localizedDescription,
+                userMessage: "Failed to save the url to given location"
+            )))
+        }
+    }
     
     func publicKeyPinning(
         serverTrust:SecTrust,

@@ -71,15 +71,6 @@ extension NetworkError {
         )
     }
     
-    public static var downloadError: NetworkError {
-        NetworkError(
-            title: Copy.downloadError,
-            code: NetworkCodes.downloadCode,
-            errorMessage: Copy.downloadErrorMessage,
-            userMessage: .empty
-        )
-    }
-    
     private static func makeNetworkErrorModel() throws -> [NetworkError]? {
         
         guard let ressourceURL =  Bundle.main.url(forResource: Copy.fileName,

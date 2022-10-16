@@ -197,10 +197,11 @@ extension Network {
     }
     
     public func download(
+        to location: URL,
         for url: URL,
-        saveTo location: URL,
         receive: DispatchQueue
     ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+        delegate.saveToLocation = location
         session.downloadTask(with: URLRequest(url: url)).resume()
         return delegate.progressSubject
     }
