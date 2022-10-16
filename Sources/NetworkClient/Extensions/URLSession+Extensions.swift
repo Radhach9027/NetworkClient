@@ -10,9 +10,9 @@ extension URLSession {
         )
     }
     
-    static func backgroundSession(delegate: NetworkSessionDelegate) -> URLSession {
+    static func backgroundSession(delegate: NetworkSessionDelegate, identifier: String) -> URLSession {
         URLSession(
-            configuration: .backgroundConfig,
+            configuration: .backgroundConfig(identifier),
             delegate: delegate,
             delegateQueue: OperationQueue()
         )

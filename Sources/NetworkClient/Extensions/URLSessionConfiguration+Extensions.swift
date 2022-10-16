@@ -6,8 +6,8 @@ extension URLSessionConfiguration {
         URLSessionConfiguration.default
     }
     
-    static var backgroundConfig: URLSessionConfiguration {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "MyBackgroundDownloader")
+    static var backgroundConfig: (String) -> URLSessionConfiguration  = { identifier in
+        let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
         configuration.isDiscretionary = true
         configuration.sessionSendsLaunchEvents = true
         return configuration

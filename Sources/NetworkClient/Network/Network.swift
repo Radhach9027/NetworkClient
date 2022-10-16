@@ -3,7 +3,7 @@ import Combine
 
 public enum SessionConfiguration {
     case `default`
-    case background
+    case background(identifer: String)
 }
 
 public final class Network {
@@ -41,9 +41,12 @@ extension Network {
                     logger: logger,
                     delegate: delegate
                 )
-            case .background:
+            case .background(let identifer):
                 self.init(
-                    session:  URLSession.backgroundSession(delegate: delegate),
+                    session:  URLSession.backgroundSession(
+                        delegate: delegate,
+                        identifier: identifer
+                    ),
                     logger: logger,
                     delegate: delegate
                 )
@@ -59,9 +62,12 @@ extension Network {
                     logger: nil,
                     delegate: delegate
                 )
-            case .background:
+            case .background(let identifer):
                 self.init(
-                    session:  URLSession.backgroundSession(delegate: delegate),
+                    session:  URLSession.backgroundSession(
+                        delegate: delegate,
+                        identifier: identifer
+                    ),
                     logger: nil,
                     delegate: delegate
                 )
@@ -80,9 +86,12 @@ extension Network {
                     logger: nil,
                     delegate: delegate
                 )
-            case .background:
+            case .background(let identifer):
                 self.init(
-                    session:  URLSession.backgroundSession(delegate: delegate),
+                    session:  URLSession.backgroundSession(
+                        delegate: delegate,
+                        identifier: identifer
+                    ),
                     logger: nil,
                     delegate: delegate
                 )
