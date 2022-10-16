@@ -43,6 +43,11 @@ public protocol DownloadProtocol {
         for url: URL,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
+    
+    func serialDownloads(
+        for requests: [URLRequest],
+        receive: DispatchQueue
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
 }
 
 public protocol SessionCancelProtocol {

@@ -232,6 +232,20 @@ extension Network {
         session.downloadTask(with: URLRequest(url: url)).resumeBackgroundTask()
         return delegate.progressSubject
     }
+    
+    public func serialDownloads(
+        for requests: [URLRequest],
+        receive: DispatchQueue
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
+        let serailQueue = DispatchQueue(label: "SerialQueing")
+        requests.publisher
+            .receive(on: serailQueue)
+            .sink { [weak self] request in
+                self?.session.downloadTask(with: request).resumeBackgroundTask()
+            }
+            .store(in: &cancellable)
+        return delegate.progressSubject
+    }
 }
 
 // MARK: Cancel Tasks
