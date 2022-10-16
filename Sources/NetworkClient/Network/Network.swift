@@ -29,6 +29,8 @@ public final class Network {
     }
 }
 
+// MARK: Network Intializers
+
 extension Network {
     public convenience init(
         config: SessionConfiguration,
@@ -115,6 +117,8 @@ extension Network {
         }
     }
 }
+
+// MARK: Network Requests
 
 extension Network: NetworkProtocol {
     public func request(
