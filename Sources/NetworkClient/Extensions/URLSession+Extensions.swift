@@ -1,7 +1,6 @@
 import Foundation
 
 extension URLSession {
-    
     static func defaultSession(delegate: NetworkSessionDelegate) -> URLSession {
         URLSession(
             configuration: .defaultConfig,
@@ -9,7 +8,7 @@ extension URLSession {
             delegateQueue: nil
         )
     }
-    
+
     static func backgroundSession(delegate: NetworkSessionDelegate, identifier: String) -> URLSession {
         URLSession(
             configuration: .backgroundConfig(identifier),
