@@ -11,17 +11,12 @@ final class NetworkSessionDelegate: NSObject,
                                     URLSessionDelegate,
                                     URLSessionDownloadDelegate {
     
-    var progressSubject: CurrentValueSubject<DownloadNetworkResponse, NetworkError>
+    var progressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
     private var pinning: SSLPinning?
     var saveToLocation: URL?
     
-    init(
-        pinning: SSLPinning? = nil,
-        progressSubject: CurrentValueSubject<DownloadNetworkResponse, NetworkError> = .init(.progress(percentage: 0.0))
-    ) {
-        
+    init(pinning: SSLPinning? = nil) {
         self.pinning = pinning
-        self.progressSubject = progressSubject
     }
     
     func urlSession(

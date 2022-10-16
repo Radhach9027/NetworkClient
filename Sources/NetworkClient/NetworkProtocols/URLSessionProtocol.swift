@@ -15,15 +15,4 @@ public protocol URLSessionProtocol {
     func invalidateAndCancel()
 }
 
-public protocol URLSessionTaskProtocol {
-    
-    func cancel()
-    
-    func suspend()
-    
-    func resume()
-}
-
-
-extension URLSessionTask: URLSessionTaskProtocol {}
 extension URLSession: URLSessionProtocol {}

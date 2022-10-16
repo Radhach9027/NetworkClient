@@ -35,18 +35,18 @@ public protocol DownloadProtocol {
     func download(
         for request: URLRequest,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
     
     func download(
         for url: URL,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
     
     func download(
         to location: URL,
         for url: URL,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
 }
 
 public protocol SessionCancelProtocol {

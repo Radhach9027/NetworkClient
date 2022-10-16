@@ -183,7 +183,7 @@ extension Network {
     public func download(
         for request: URLRequest,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         session.downloadTask(with: request).resume()
         return delegate.progressSubject
     }
@@ -191,7 +191,7 @@ extension Network {
     public func download(
         for url: URL,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         session.downloadTask(with: URLRequest(url: url)).resume()
         return delegate.progressSubject
     }
@@ -200,7 +200,7 @@ extension Network {
         to location: URL,
         for url: URL,
         receive: DispatchQueue
-    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         delegate.saveToLocation = location
         session.downloadTask(with: URLRequest(url: url)).resume()
         return delegate.progressSubject
