@@ -101,12 +101,12 @@ final class NetworkSessionDelegate: NSObject,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        guard let exactLocation = saveToLocation else {
+        guard let givenLocation = saveToLocation else {
             progressSubject.send(.response(data: location))
             progressSubject.send(completion: .finished)
             return
         }
-        save(file: exactLocation, downloadedUrl: location)
+        save(to: givenLocation, downloadedUrl: location)
     }
     
     func urlSession(
@@ -126,7 +126,7 @@ final class NetworkSessionDelegate: NSObject,
 
 private extension NetworkSessionDelegate {
     
-    func save(file: URL, downloadedUrl: URL) {
+    func save(to file: URL, downloadedUrl: URL) {
         do {
             if FileManager.default.fileExists(atPath: file.path) {
                 try FileManager.default.removeItem(at: file)
@@ -136,8 +136,7 @@ private extension NetworkSessionDelegate {
                 at: downloadedUrl,
                 to: file
             )
-        }
-        catch let fileError {
+        } catch let fileError {
             progressSubject.send(completion: .failure(.init(
                 title: "Download To Location",
                 code: -222,
