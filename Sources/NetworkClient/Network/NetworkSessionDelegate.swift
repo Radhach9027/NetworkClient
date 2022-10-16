@@ -123,6 +123,10 @@ final class NetworkSessionDelegate: NSObject,
         }
         session.downloadTask(withResumeData: resumeData).resume()
     }
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+       
+    }
 }
 
 private extension NetworkSessionDelegate {
