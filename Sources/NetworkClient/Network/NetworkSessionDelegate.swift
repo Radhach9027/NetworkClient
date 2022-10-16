@@ -11,12 +11,17 @@ final class NetworkSessionDelegate: NSObject,
                                     URLSessionDelegate,
                                     URLSessionDownloadDelegate {
     
+    var urlSessionDidFinishEvents: ((URLSession) -> Void)?
     var progressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
     var saveToLocation: URL?
     private var pinning: SSLPinning?
 
-    init(pinning: SSLPinning? = nil) {
+    init(
+        pinning: SSLPinning? = nil,
+        urlSessionDidFinishEvents: ((URLSession) -> Void)?
+    ) {
         self.pinning = pinning
+        self.urlSessionDidFinishEvents = urlSessionDidFinishEvents
     }
     
     func urlSession(
@@ -119,7 +124,7 @@ final class NetworkSessionDelegate: NSObject,
     }
     
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-       
+        urlSessionDidFinishEvents?(session)
     }
 }
 

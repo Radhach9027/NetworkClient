@@ -11,6 +11,7 @@ public final class Network {
     private var delegate: NetworkSessionDelegate
     private var logger: NetworkLoggerProtocol?
     private var cancellable = Set<AnyCancellable>()
+    private var urlSessionDidFinishEvents: ((URLSession) -> Void)?
     public static var isInternetReachable: Bool {
         NetworkReachability.shared.isReachable
     }
@@ -18,11 +19,13 @@ public final class Network {
     private init(
         session: URLSessionProtocol,
         logger: NetworkLoggerProtocol? = nil,
-        delegate: NetworkSessionDelegate
+        delegate: NetworkSessionDelegate,
+        urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
     ) {
         self.session = session
         self.logger = logger
         self.delegate = delegate
+        self.urlSessionDidFinishEvents = urlSessionDidFinishEvents
     }
 }
 
@@ -31,9 +34,14 @@ extension Network {
     public convenience init(
         config: SessionConfiguration,
         pinning: SSLPinning,
-        logger: NetworkLoggerProtocol
+        logger: NetworkLoggerProtocol,
+        urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
     ) {
-        let delegate = NetworkSessionDelegate(pinning: pinning)
+        let delegate = NetworkSessionDelegate(
+            pinning: pinning,
+            urlSessionDidFinishEvents: urlSessionDidFinishEvents
+        )
+        
         switch config {
             case .default:
                 self.init(
@@ -53,8 +61,12 @@ extension Network {
         }
     }
     
-    public convenience init(config: SessionConfiguration) {
-        let delegate = NetworkSessionDelegate()
+    public convenience init(
+        config: SessionConfiguration,
+        urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
+    ) {
+        let delegate = NetworkSessionDelegate(urlSessionDidFinishEvents: urlSessionDidFinishEvents)
+       
         switch config {
             case .default:
                 self.init(
@@ -76,9 +88,14 @@ extension Network {
     
     public convenience init(
         config: SessionConfiguration,
-        pinning: SSLPinning
+        pinning: SSLPinning,
+        urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
     ) {
-        let delegate = NetworkSessionDelegate(pinning: pinning)
+        let delegate = NetworkSessionDelegate(
+            pinning: pinning,
+            urlSessionDidFinishEvents: urlSessionDidFinishEvents
+        )
+
         switch config {
             case .default:
                 self.init(
