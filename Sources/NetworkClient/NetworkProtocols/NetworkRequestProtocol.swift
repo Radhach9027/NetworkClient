@@ -11,6 +11,9 @@ public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCache
 }
 
 public extension NetworkRequestProtocol {
+    var urlComponents: URLComponents? {
+        nil
+    }
     
     var httpHeaderFields: NetworkHTTPHeaderField? {
         nil

@@ -15,6 +15,7 @@ extension NetworkError {
         static let noInternet = -1
         static let badUrl = -2
         static let api = -111
+        static let downloadCode = -222
     }
     
     private enum Copy {
@@ -30,34 +31,53 @@ extension NetworkError {
         static let nsErrorURLKey = "NSErrorFailingURLKey"
         static let codableConversionError = "NetworErrors Json File"
         static let codableConversionErrorMessage = "Issue in converting NetworkErrors.json via codable model."
+        static let downloadError = "Download Error"
+        static let downloadErrorMessage = "Download delegate was not set session."
     }
     
     public static var noInternet: NetworkError {
-        NetworkError(title: Copy.noInternetTitle,
-                     code: NetworkCodes.noInternet,
-                     errorMessage: Copy.noInternet,
-                     userMessage: .empty)
+        NetworkError(
+            title: Copy.noInternetTitle,
+            code: NetworkCodes.noInternet,
+            errorMessage: Copy.noInternet,
+            userMessage: .empty
+        )
     }
     
     public static var badUrl: NetworkError {
-        NetworkError(title: Copy.badUrlTitle,
-                     code: NetworkCodes.badUrl,
-                     errorMessage: Copy.badUrl,
-                     userMessage: .empty)
+        NetworkError(
+            title: Copy.badUrlTitle,
+            code: NetworkCodes.badUrl,
+            errorMessage: Copy.badUrl,
+            userMessage: .empty
+        )
     }
     
     public static var unknown: NetworkError {
-        NetworkError(title: Copy.HTTPresponseNil,
-                     code: NetworkCodes.unknown,
-                     errorMessage: .empty,
-                     userMessage: Copy.unknown)
+        NetworkError(
+            title: Copy.HTTPresponseNil,
+            code: NetworkCodes.unknown,
+            errorMessage: .empty,
+            userMessage: Copy.unknown
+        )
     }
     
     private static var errorInCodableConversion: NetworkError {
-        NetworkError(title: Copy.codableConversionError,
-                     code: NetworkCodes.jsonFileError,
-                     errorMessage: Copy.codableConversionErrorMessage,
-                     userMessage: .empty)
+        NetworkError(
+            title: Copy.codableConversionError,
+            code: NetworkCodes.jsonFileError,
+            errorMessage: Copy.codableConversionErrorMessage,
+            userMessage: .empty
+        )
+    }
+    
+    public static var downloadError: NetworkError {
+        NetworkError(
+            title: Copy.downloadError,
+            code: NetworkCodes.downloadCode,
+            errorMessage: Copy.downloadErrorMessage,
+            userMessage: .empty
+        )
     }
     
     private static func makeNetworkErrorModel() throws -> [NetworkError]? {
@@ -105,9 +125,11 @@ extension NetworkError {
             errorMessage = String(describing: urlError)
         }
         
-        return NetworkError(title: domain,
-                            code: errorcode,
-                            errorMessage: errorMessage,
-                            userMessage: userMessage)
+        return NetworkError(
+            title: domain,
+            code: errorcode,
+            errorMessage: errorMessage,
+            userMessage: userMessage
+        )
     }
 }

@@ -6,9 +6,24 @@ public protocol URLSessionProtocol {
     
     func dataTaskPublisher(for url: URL) -> URLSession.DataTaskPublisher
     
+    func downloadTask(with request: URLRequest) -> URLSessionDownloadTask
+    
+    func downloadTask(with url: URL) -> URLSessionDownloadTask
+    
     func getAllTasks(completionHandler: @escaping ([URLSessionTask]) -> Void)
     
     func invalidateAndCancel()
 }
 
+public protocol URLSessionTaskProtocol {
+    
+    func cancel()
+    
+    func suspend()
+    
+    func resume()
+}
+
+
+extension URLSessionTask: URLSessionTaskProtocol {}
 extension URLSession: URLSessionProtocol {}

@@ -6,34 +6,29 @@ public enum SSLPinning {
     case publicKeyPinning(hash: String)
 }
 
-protocol NetworkSessionDelegateProtocol: URLSessionTaskDelegate {
-    var progressSubject: CurrentValueSubject<(id: Int, progress: Double), Never> { get }
-}
-
-final class NetworkSessionDelegate: NSObject, NetworkSessionDelegateProtocol {
+final class NetworkSessionDelegate: NSObject,
+                                    URLSessionTaskDelegate,
+                                    URLSessionDelegate,
+                                    URLSessionDownloadDelegate {
     
-    var progressSubject: CurrentValueSubject<(id: Int, progress: Double), Never>
+    var progressSubject: CurrentValueSubject<DownloadNetworkResponse, NetworkError>
     private var pinning: SSLPinning?
     
-    init(pinning: SSLPinning? = nil,
-         progressSubject: CurrentValueSubject<(id: Int, progress: Double),
-         Never> = .init((id: 0, progress: 0.0))) {
+    init(
+        pinning: SSLPinning? = nil,
+        progressSubject: CurrentValueSubject<DownloadNetworkResponse, NetworkError> = .init(.progress(percentage: 0.0))
+    ) {
         
         self.pinning = pinning
         self.progressSubject = progressSubject
     }
     
-    private func updateProgress(_ task: URLSessionTask) {
-        self.progressSubject.send((
-            id: task.taskIdentifier,
-            progress: task.progress.fractionCompleted
-        ))
-    }
-    
-    func urlSession(_ session: URLSession,
-                    didReceive challenge: URLAuthenticationChallenge,
-                    completionHandler: @escaping (URLSession.AuthChallengeDisposition,
-                                                  URLCredential?) -> Swift.Void) {
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition,
+                                      URLCredential?
+        ) -> Swift.Void) {
         
         guard let pinning = pinning else {
             print("SSL Pinning Disabled, Using default handling.")
@@ -61,21 +56,27 @@ final class NetworkSessionDelegate: NSObject, NetworkSessionDelegateProtocol {
                     
                     switch pinning {
                         case let .certificatePinning(certificate, hash):
-                            result = self?.cetificatePinning(certificate: certificate,
-                                                             hash: hash,
-                                                             serverTrust: serverTrust)
+                            result = self?.cetificatePinning(
+                                certificate: certificate,
+                                hash: hash,
+                                serverTrust: serverTrust
+                            )
                         case let .publicKeyPinning(hash):
-                            result = self?.publicKeyPinning(serverTrust: serverTrust,
-                                                            hash: hash,
-                                                            trust: trust)
+                            result = self?.publicKeyPinning(
+                                serverTrust: serverTrust,
+                                hash: hash,
+                                trust: trust
+                            )
                     }
                     
-                    completionHandler( result == true
-                                       ? .useCredential
-                                       : .cancelAuthenticationChallenge,
-                                       result == true
-                                       ? URLCredential(trust: serverTrust)
-                                       : nil )
+                    completionHandler(
+                        result == true
+                        ? .useCredential
+                        : .cancelAuthenticationChallenge,
+                        result == true
+                        ? URLCredential(trust: serverTrust)
+                        : nil
+                    )
                 } else {
                     print("Trust failed: \(error!.localizedDescription)") // Log these errors to metrics
                 }
@@ -83,35 +84,48 @@ final class NetworkSessionDelegate: NSObject, NetworkSessionDelegateProtocol {
         }
     }
     
-    
-    func urlSession( _ session: URLSession,
-                     task: URLSessionTask,
-                     didSendBodyData bytesSent: Int64,
-                     totalBytesSent: Int64,
-                     totalBytesExpectedToSend: Int64) {
-        updateProgress(task)
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        progressSubject.send(.progress(percentage: progress))
     }
     
-    func urlSession(_ session: URLSession,
-                    downloadTask: URLSessionDownloadTask,
-                    didWriteData bytesWritten: Int64,
-                    totalBytesWritten: Int64,
-                    totalBytesExpectedToWrite: Int64) {
-        updateProgress(downloadTask)
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        progressSubject.send(.response(data: location))
+        progressSubject.send(completion: .finished)
     }
     
-    func urlSession(_ session: URLSession,
-                    downloadTask: URLSessionDownloadTask,
-                    didFinishDownloadingTo location: URL) {
-        updateProgress(downloadTask)
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        guard let error = error else { return }
+        progressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
+        guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
+            print("Download failed")
+            return
+        }
+        session.downloadTask(withResumeData: resumeData).resume()
     }
 }
 
 private extension NetworkSessionDelegate {
     
-    func publicKeyPinning(serverTrust:SecTrust,
-                          hash: String,
-                          trust: SecTrust)-> Bool {
+    func publicKeyPinning(
+        serverTrust:SecTrust,
+        hash: String,
+        trust: SecTrust
+    )-> Bool {
         
         if let serverPublicKey = SecTrustCopyKey(trust),
            let serverPublicKeyData: NSData =  SecKeyCopyExternalRepresentation(serverPublicKey, nil) {
@@ -122,9 +136,11 @@ private extension NetworkSessionDelegate {
     }
     
     
-    func cetificatePinning(certificate: SecCertificate,
-                           hash: String,
-                           serverTrust: SecTrust)-> Bool {
+    func cetificatePinning(
+        certificate: SecCertificate,
+        hash: String,
+        serverTrust: SecTrust
+    )-> Bool {
         
         let serverCertificateData:NSData = SecCertificateCopyData(certificate)
         let certHash = serverCertificateData.description.sha256

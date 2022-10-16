@@ -3,7 +3,7 @@ import CommonCrypto
 
 extension Data {
     
-    func sha256() -> String{
+    func sha256() -> String {
         return hexStringFromData(input: digest(input: self as NSData))
     }
     

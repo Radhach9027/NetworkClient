@@ -46,13 +46,20 @@ public struct NetworkLogger: NetworkLoggerProtocol {
         )
     }
     
-    public func logRequest(url: URL,
-                    error: NetworkError,
-                    type: OSLogType,
-                    privacy: LoggerPrivacy) {
+    public func logRequest(
+        url: URL,
+        error: NetworkError,
+        type: OSLogType,
+        privacy: LoggerPrivacy
+    ) {
         
-        let errorString = "Error = \(error.title), ErrorCode = \(error.code), ErrorMessage = \(error.errorMessage), URL = \(url)"
-
+        let errorString = """
+        Error = \(error.title),
+        ErrorCode = \(error.code),
+        ErrorMessage = \(error.errorMessage),
+        URL = \(url)
+        """
+        
         switch privacy {
             case .open:
                 logger.log(level: type, "NetworkError: \(errorString, privacy: .public)")

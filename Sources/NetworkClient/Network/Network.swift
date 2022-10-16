@@ -1,63 +1,101 @@
 import Foundation
 import Combine
 
+public enum SessionConfiguration {
+    case `default`
+    case background
+}
+
 public final class Network {
-    
     private var session: URLSessionProtocol
-    private var sessionDelegate: NetworkSessionDelegateProtocol?
+    private var delegate: NetworkSessionDelegate
     private var logger: NetworkLoggerProtocol?
+    private var cancellable = Set<AnyCancellable>()
     public static var isInternetReachable: Bool {
         NetworkReachability.shared.isReachable
     }
     
-    public init(session: URLSessionProtocol = URLSession.shared,
-         logger: NetworkLoggerProtocol? = nil) {
+    private init(
+        session: URLSessionProtocol,
+        logger: NetworkLoggerProtocol? = nil,
+        delegate: NetworkSessionDelegate
+    ) {
         self.session = session
         self.logger = logger
+        self.delegate = delegate
     }
 }
 
 extension Network {
     
-    public convenience init(configuration: URLSessionConfiguration,
-                     delegateQueue: OperationQueue) {
-        
-        let delegate = NetworkSessionDelegate()
-        let session = URLSession(configuration: configuration,
-                                 delegate: delegate,
-                                 delegateQueue: delegateQueue)
-        self.init(session: session)
-    }
-
-    public convenience init(configuration: URLSessionConfiguration,
-                     delegateQueue: OperationQueue,
-                     pinning: SSLPinning) {
-        
+    public convenience init(
+        config: SessionConfiguration,
+        pinning: SSLPinning,
+        logger: NetworkLoggerProtocol
+    ) {
         let delegate = NetworkSessionDelegate(pinning: pinning)
-        let session = URLSession(configuration: configuration,
-                                 delegate: delegate,
-                                 delegateQueue: delegateQueue)
-        self.init(session: session)
+        switch config {
+            case .default:
+                self.init(
+                    session: URLSession.defaultSession(delegate: delegate),
+                    logger: logger,
+                    delegate: delegate
+                )
+            case .background:
+                self.init(
+                    session:  URLSession.backgroundSession(delegate: delegate),
+                    logger: logger,
+                    delegate: delegate
+                )
+        }
     }
     
-    public convenience init(configuration: URLSessionConfiguration,
-                     delegateQueue: OperationQueue,
-                     pinning: SSLPinning,
-                     logger: NetworkLoggerProtocol) {
-        
+    public convenience init(config: SessionConfiguration) {
+        let delegate = NetworkSessionDelegate()
+        switch config {
+            case .default:
+                self.init(
+                    session: URLSession.defaultSession(delegate: delegate),
+                    logger: nil,
+                    delegate: delegate
+                )
+            case .background:
+                self.init(
+                    session:  URLSession.backgroundSession(delegate: delegate),
+                    logger: nil,
+                    delegate: delegate
+                )
+        }
+    }
+    
+    public convenience init(
+        config: SessionConfiguration,
+        pinning: SSLPinning
+    ) {
         let delegate = NetworkSessionDelegate(pinning: pinning)
-        let session = URLSession(configuration: configuration,
-                                 delegate: delegate,
-                                 delegateQueue: delegateQueue)
-        self.init(session: session,
-                  logger: logger)
+        switch config {
+            case .default:
+                self.init(
+                    session: URLSession.defaultSession(delegate: delegate),
+                    logger: nil,
+                    delegate: delegate
+                )
+            case .background:
+                self.init(
+                    session:  URLSession.backgroundSession(delegate: delegate),
+                    logger: nil,
+                    delegate: delegate
+                )
+        }
     }
 }
 
 extension Network: NetworkProtocol {
-    
-    public func request(for request: URLRequest,
-                 receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
+
+    public func request(
+        for request: URLRequest,
+        receive: DispatchQueue
+    ) -> AnyPublisher<Data, NetworkError> {
         
         session.dataTaskPublisher(for: request)
             .receive(on: receive)
@@ -67,10 +105,12 @@ extension Network: NetworkProtocol {
                 }
                 
                 if let logger = self?.logger {
-                    logger.logRequest(url: request.url!,
-                                      error: error,
-                                      type: .error,
-                                      privacy: .encrypt)
+                    logger.logRequest(
+                        url: request.url!,
+                        error: error,
+                        type: .error,
+                        privacy: .encrypt
+                    )
                 }
                 
                 throw error
@@ -81,10 +121,12 @@ extension Network: NetworkProtocol {
                 }
                 
                 if let logger = self?.logger {
-                    logger.logRequest(url: request.url!,
-                                      error: error,
-                                      type: .error,
-                                      privacy: .encrypt)
+                    logger.logRequest(
+                        url: request.url!,
+                        error: error,
+                        type: .error,
+                        privacy: .encrypt
+                    )
                 }
                 
                 return error
@@ -92,8 +134,10 @@ extension Network: NetworkProtocol {
             .eraseToAnyPublisher()
     }
     
-    public func request(for url: URL,
-                 receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
+    public func request(
+        for url: URL,
+        receive: DispatchQueue
+    ) -> AnyPublisher<Data, NetworkError> {
         
         session.dataTaskPublisher(for: url)
             .receive(on: receive)
@@ -103,10 +147,12 @@ extension Network: NetworkProtocol {
                 }
                 
                 if let logger = self?.logger {
-                    logger.logRequest(url: url,
-                                      error: error,
-                                      type: .error,
-                                      privacy: .encrypt)
+                    logger.logRequest(
+                        url: url,
+                        error: error,
+                        type: .error,
+                        privacy: .encrypt
+                    )
                 }
                 
                 throw error
@@ -117,15 +163,46 @@ extension Network: NetworkProtocol {
                 }
                 
                 if let logger = self?.logger {
-                    logger.logRequest(url: url,
-                                      error: error,
-                                      type: .error,
-                                      privacy: .encrypt)
+                    logger.logRequest(
+                        url: url,
+                        error: error,
+                        type: .error,
+                        privacy: .encrypt
+                    )
                 }
                 
                 return error
             }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: Download Tasks
+extension Network {
+    
+    public func download(
+        for request: URLRequest,
+        receive: DispatchQueue
+    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+        session.downloadTask(with: request).resume()
+        return delegate.progressSubject
+    }
+    
+    public func download(
+        for url: URL,
+        receive: DispatchQueue
+    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+        session.downloadTask(with: URLRequest(url: url)).resume()
+        return delegate.progressSubject
+    }
+    
+    public func download(
+        for url: URL,
+        saveTo location: URL,
+        receive: DispatchQueue
+    ) -> CurrentValueSubject<DownloadNetworkResponse, NetworkError> {
+        session.downloadTask(with: URLRequest(url: url)).resume()
+        return delegate.progressSubject
     }
 }
 
@@ -181,20 +258,6 @@ extension Network {
     func upload(for request: URLRequest,
                 fileURL: URL,
                 receive: DispatchQueue) -> AnyPublisher<UploadNetworkResponse, NetworkError> {
-        
-    }
-}
-
-// MARK: Download Tasks
-extension Network {
-    
-    func download(for request: URLRequest,
-                  receive: DispatchQueue) -> AnyPublisher<DownloadNetworkResponse, NetworkError> {
-        
-    }
-    
-    func download(for url: URL,
-                  receive: DispatchQueue) -> AnyPublisher<DownloadNetworkResponse, NetworkError> {
         
     }
 }
