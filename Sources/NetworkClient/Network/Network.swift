@@ -184,7 +184,7 @@ extension Network {
         for request: URLRequest,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        session.downloadTask(with: request).resume()
+        session.downloadTask(with: request).resumeBackgroundTask()
         return delegate.progressSubject
     }
     
@@ -192,7 +192,7 @@ extension Network {
         for url: URL,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        session.downloadTask(with: URLRequest(url: url)).resume()
+        session.downloadTask(with: URLRequest(url: url)).resumeBackgroundTask()
         return delegate.progressSubject
     }
     
@@ -202,7 +202,7 @@ extension Network {
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         delegate.saveToLocation = location
-        session.downloadTask(with: URLRequest(url: url)).resume()
+        session.downloadTask(with: URLRequest(url: url)).resumeBackgroundTask()
         return delegate.progressSubject
     }
 }
@@ -242,24 +242,6 @@ extension Network {
                 return Publishers.MergeMany(tasks)
             }.collect()
             .eraseToAnyPublisher()
-    }
-}
-
-
-
-// MARK: Upload Tasks
-extension Network {
-    
-    func upload(with request: URLRequest,
-                from bodyData: Data?,
-                receive: DispatchQueue) -> AnyPublisher<UploadNetworkResponse, NetworkError> {
-        
-    }
-    
-    func upload(for request: URLRequest,
-                fileURL: URL,
-                receive: DispatchQueue) -> AnyPublisher<UploadNetworkResponse, NetworkError> {
-        
     }
 }
 */
