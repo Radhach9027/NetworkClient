@@ -12,9 +12,9 @@ final class NetworkSessionDelegate: NSObject,
                                     URLSessionDownloadDelegate {
     
     var progressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
-    private var pinning: SSLPinning?
     var saveToLocation: URL?
-    
+    private var pinning: SSLPinning?
+
     init(pinning: SSLPinning? = nil) {
         self.pinning = pinning
     }
@@ -88,7 +88,9 @@ final class NetworkSessionDelegate: NSObject,
         totalBytesExpectedToWrite: Int64
     ) {
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-        progressSubject.send(.progress(percentage: progress))
+        DispatchQueue.main.async { [weak self] in
+            self?.progressSubject.send(.progress(percentage: progress))
+        }
     }
     
     func urlSession(
@@ -97,8 +99,10 @@ final class NetworkSessionDelegate: NSObject,
         didFinishDownloadingTo location: URL
     ) {
         guard let givenLocation = saveToLocation else {
-            progressSubject.send(.response(data: location))
-            progressSubject.send(completion: .finished)
+            DispatchQueue.main.async { [weak self] in
+                self?.progressSubject.send(.response(data: location))
+                self?.progressSubject.send(completion: .finished)
+            }
             return
         }
         save(to: givenLocation, downloadedUrl: location)
@@ -110,7 +114,9 @@ final class NetworkSessionDelegate: NSObject,
         didCompleteWithError error: Error?
     ) {
         guard let error = error else { return }
-        progressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
+        DispatchQueue.main.async { [weak self] in
+            self?.progressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
+        }
         guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
             print("Download failed")
             return
