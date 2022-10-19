@@ -11,7 +11,6 @@ public final class Network {
     private var delegate: NetworkSessionDelegate
     private var logger: NetworkLoggerProtocol?
     private var cancellable = Set<AnyCancellable>()
-    private let progress: PassthroughSubject<(id: Int, progress: Double), Never> = .init()
     private var urlSessionDidFinishEvents: ((URLSession) -> Void)?
     public static var isInternetReachable: Bool {
         NetworkReachability.shared.isReachable
