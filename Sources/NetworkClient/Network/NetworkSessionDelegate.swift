@@ -1,17 +1,14 @@
 import Combine
 import Foundation
 
-public enum SSLPinning {
-    case certificatePinning(certificate: SecCertificate, hash: String)
-    case publicKeyPinning(hash: String)
-}
-
 final class NetworkSessionDelegate: NSObject,
     URLSessionTaskDelegate,
     URLSessionDelegate,
-    URLSessionDownloadDelegate {
+    URLSessionDownloadDelegate,
+    URLSessionDataDelegate {
     var urlSessionDidFinishEvents: ((URLSession) -> Void)?
-    var progressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
+    var downloadProgressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
+    var uploadProgressSubject: PassthroughSubject<UploadNetworkResponse, NetworkError> = .init()
     var saveToLocation: URL?
     private var pinning: SSLPinning?
     private var logger: NetworkLoggerProtocol?
@@ -25,6 +22,8 @@ final class NetworkSessionDelegate: NSObject,
         self.logger = logger
         self.urlSessionDidFinishEvents = urlSessionDidFinishEvents
     }
+
+    // MARK: URLAuthenticationChallenge
 
     func urlSession(
         _ session: URLSession,
@@ -47,7 +46,7 @@ final class NetworkSessionDelegate: NSObject,
 
         DispatchQueue.global().async {
             SecTrustEvaluateAsyncWithError(serverTrust,
-                                           DispatchQueue.global()) { [weak self]
+                                           DispatchQueue.global()) {
                 trust,
                     result,
                     error in
@@ -57,13 +56,13 @@ final class NetworkSessionDelegate: NSObject,
 
                     switch pinning {
                     case let .certificatePinning(certificate, hash):
-                        result = self?.cetificatePinning(
+                        result = pinning.cetificatePinning(
                             certificate: certificate,
                             hash: hash,
                             serverTrust: serverTrust
                         )
                     case let .publicKeyPinning(hash):
-                        result = self?.publicKeyPinning(
+                        result = pinning.publicKeyPinning(
                             serverTrust: serverTrust,
                             hash: hash,
                             trust: trust
@@ -85,6 +84,8 @@ final class NetworkSessionDelegate: NSObject,
         }
     }
 
+    // MARK: URLSessionDownload delegates
+
     func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
@@ -93,7 +94,7 @@ final class NetworkSessionDelegate: NSObject,
         totalBytesExpectedToWrite: Int64
     ) {
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-        progressSubject.send(.progress(percentage: progress))
+        downloadProgressSubject.send(.progress(percentage: progress))
     }
 
     func urlSession(
@@ -102,12 +103,36 @@ final class NetworkSessionDelegate: NSObject,
         didFinishDownloadingTo location: URL
     ) {
         guard let givenLocation = saveToLocation else {
-            progressSubject.send(.response(data: location))
-            progressSubject.send(completion: .finished)
+            downloadProgressSubject.send(.response(data: location))
+            downloadProgressSubject.send(completion: .finished)
             return
         }
         save(to: givenLocation, downloadedUrl: location)
     }
+
+    // MARK: URLSessionUpload delegates
+
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
+        let progress = Float(totalBytesSent) / Float(totalBytesExpectedToSend)
+        uploadProgressSubject.send(.progress(percentage: progress))
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive data: Data
+    ) {
+        uploadProgressSubject.send(.response(data: data))
+        uploadProgressSubject.send(completion: .finished)
+    }
+
+    // MARK: URLSessionUpload_Download Error delegate
 
     func urlSession(
         _ session: URLSession,
@@ -132,13 +157,15 @@ final class NetworkSessionDelegate: NSObject,
                 privacy: .encrypt
             )
         }
-        progressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
+        downloadProgressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
         guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
             debugPrint("Download failed")
             return
         }
         session.downloadTask(withResumeData: resumeData).resume()
     }
+
+    // MARK: URLSessionUpload_Download Finish delegate
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         urlSessionDidFinishEvents?(session)
@@ -165,35 +192,12 @@ private extension NetworkSessionDelegate {
                 to: file
             )
         } catch let fileError {
-            progressSubject.send(completion: .failure(.init(
+            downloadProgressSubject.send(completion: .failure(.init(
                 title: Constants.downloadToLocationTitle,
                 code: Constants.errorCode,
                 errorMessage: fileError.localizedDescription,
                 userMessage: Constants.downloadToLocationMessage
             )))
         }
-    }
-
-    func publicKeyPinning(
-        serverTrust: SecTrust,
-        hash: String,
-        trust: SecTrust
-    ) -> Bool {
-        if let serverPublicKey = SecTrustCopyKey(trust),
-           let serverPublicKeyData: NSData = SecKeyCopyExternalRepresentation(serverPublicKey, nil) {
-            let keyHash = serverPublicKeyData.description.sha256
-            return keyHash == hash ? true : false
-        }
-        return false
-    }
-
-    func cetificatePinning(
-        certificate: SecCertificate,
-        hash: String,
-        serverTrust: SecTrust
-    ) -> Bool {
-        let serverCertificateData: NSData = SecCertificateCopyData(certificate)
-        let certHash = serverCertificateData.description.sha256
-        return certHash == hash ? true : false
     }
 }

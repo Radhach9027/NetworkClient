@@ -11,6 +11,7 @@ public final class Network {
     private var delegate: NetworkSessionDelegate
     private var logger: NetworkLoggerProtocol?
     private var cancellable = Set<AnyCancellable>()
+    private let progress: PassthroughSubject<(id: Int, progress: Double), Never> = .init()
     private var urlSessionDidFinishEvents: ((URLSession) -> Void)?
     public static var isInternetReachable: Bool {
         NetworkReachability.shared.isReachable
@@ -122,85 +123,51 @@ extension Network {
 
 extension Network: NetworkProtocol {
     public func request(
-        for request: URLRequest,
+        for request: NetworkRequestProtocol,
         receive: DispatchQueue
     ) -> AnyPublisher<Data, NetworkError> {
-        session.dataTaskPublisher(for: request)
-            .receive(on: receive)
-            .tryMap { [weak self] data, response in
-                guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
-                    return data
+        do {
+            let request = try request.makeRequest()
+            return session.dataTaskPublisher(for: request)
+                .receive(on: receive)
+                .tryMap { [weak self] data, response in
+                    guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
+                        return data
+                    }
+
+                    if let logger = self?.logger {
+                        logger.logRequest(
+                            url: request.url!,
+                            error: error,
+                            type: .error,
+                            privacy: .encrypt
+                        )
+                    }
+
+                    throw error
                 }
+                .mapError { [weak self] error in
+                    guard let error = error as? NetworkError else {
+                        return NetworkError.convertErrorToNetworkError(error: error as NSError)
+                    }
 
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: request.url!,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
+                    if let logger = self?.logger {
+                        logger.logRequest(
+                            url: request.url!,
+                            error: error,
+                            type: .error,
+                            privacy: .encrypt
+                        )
+                    }
+
+                    return error
                 }
+                .eraseToAnyPublisher()
 
-                throw error
-            }
-            .mapError { [weak self] error in
-                guard let error = error as? NetworkError else {
-                    return NetworkError.convertErrorToNetworkError(error: error as NSError)
-                }
-
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: request.url!,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
-                }
-
-                return error
-            }
-            .eraseToAnyPublisher()
-    }
-
-    public func request(
-        for url: URL,
-        receive: DispatchQueue
-    ) -> AnyPublisher<Data, NetworkError> {
-        session.dataTaskPublisher(for: url)
-            .receive(on: receive)
-            .tryMap { [weak self] data, response in
-                guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
-                    return data
-                }
-
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: url,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
-                }
-
-                throw error
-            }
-            .mapError { [weak self] error in
-                guard let error = error as? NetworkError else {
-                    return NetworkError.convertErrorToNetworkError(error: error as NSError)
-                }
-
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: url,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
-                }
-
-                return error
-            }
-            .eraseToAnyPublisher()
+        } catch let error as NSError {
+            return Fail(error: NetworkError.convertErrorToNetworkError(error: error))
+                .eraseToAnyPublisher()
+        }
     }
 }
 
@@ -208,43 +175,49 @@ extension Network: NetworkProtocol {
 
 extension Network {
     public func download(
-        for request: URLRequest,
+        for request: NetworkRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        session.downloadTask(with: request).resumeBackgroundTask()
-        return delegate.progressSubject
+        do {
+            let _request = try request.makeRequest()
+            delegate.saveToLocation = request.saveDownloadedUrlToLocation
+            session.downloadTask(with: _request).resumeBackgroundTask()
+            return delegate.downloadProgressSubject
+        } catch let error as NSError {
+            let failure = PassthroughSubject<DownloadNetworkResponse, NetworkError>()
+            failure.send(completion: .failure(NetworkError.convertErrorToNetworkError(error: error)))
+            return failure
+        }
     }
+}
 
-    public func download(
-        for url: URL,
-        receive: DispatchQueue
-    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        session.downloadTask(with: URLRequest(url: url)).resumeBackgroundTask()
-        return delegate.progressSubject
-    }
+// MARK: Upload Tasks
 
-    public func download(
-        to location: URL,
-        for url: URL,
+extension Network {
+    public func upload(
+        with request: NetworkRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        delegate.saveToLocation = location
-        session.downloadTask(with: URLRequest(url: url)).resumeBackgroundTask()
-        return delegate.progressSubject
-    }
-    
-    public func serialDownloads(
-        for requests: [URLRequest],
-        receive: DispatchQueue
-    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
-        let serailQueue = DispatchQueue(label: "SerialQueing")
-        requests.publisher
-            .receive(on: serailQueue)
-            .sink { [weak self] request in
-                self?.session.downloadTask(with: request).resumeBackgroundTask()
+    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
+        do {
+            let _request = try request.makeRequest()
+            if let fileUrl = request.uploadFromFile {
+                session.uploadTask(
+                    with: _request,
+                    fromFile: fileUrl
+                ).resumeBackgroundTask()
+            } else {
+                session.uploadTask(
+                    with: _request,
+                    from: request.uploadFormData!
+                ).resumeBackgroundTask()
             }
-            .store(in: &cancellable)
-        return delegate.progressSubject
+            return delegate.uploadProgressSubject
+
+        } catch let error as NSError {
+            let failure = PassthroughSubject<UploadNetworkResponse, NetworkError>()
+            failure.send(completion: .failure(NetworkError.convertErrorToNetworkError(error: error)))
+            return failure
+        }
     }
 }
 
@@ -264,25 +237,3 @@ extension Network {
         }
     }
 }
-
-// TODO: Development in-progress
-
-/*
- // MARK: Bulk Tasks
- extension Network {
-
-     func bulkRequest(for requests: [URLRequest],
-                      receive: DispatchQueue) -> AnyPublisher<[Publishers.MergeMany<AnyPublisher<Data, NetworkError>.Output>]> {
-
-         return Just(requests)
-             .setFailureType(to: NetworkError.self)
-             .flatMap { (values) -> Publishers.MergeMany<AnyPublisher<Data, NetworkError>> in
-                 let tasks = values.map { (request) -> AnyPublisher<Data, NetworkError> in
-                     return self.request(for: request, receive: receive)
-                 }
-                 return Publishers.MergeMany(tasks)
-             }.collect()
-             .eraseToAnyPublisher()
-     }
- }
- */

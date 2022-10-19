@@ -7,11 +7,22 @@ public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCache
     var httpHeaderFields: NetworkHTTPHeaderField? { get }
     var httpBodyParameters: NetworkBodyRequestParameters? { get }
     var isNetworkReachable: Bool { get }
+    var saveDownloadedUrlToLocation: URL? { get }
+    var uploadFromFile: URL? { get }
+    var uploadFormData: Data? { get }
     func makeRequest() throws -> URLRequest
 }
 
 public extension NetworkRequestProtocol {
-    var urlComponents: URLComponents? {
+    var uploadFromFile: URL? {
+        nil
+    }
+    
+    var uploadFormData: Data? {
+        nil
+    }
+    
+    var saveDownloadedUrlToLocation: URL? {
         nil
     }
 
@@ -32,7 +43,8 @@ public extension NetworkRequestProtocol {
     }
 
     func makeRequest() throws -> URLRequest {
-        guard let url = urlComponents?.url else {
+        guard let url = urlComponents?.url,
+              url.isValid else {
             throw NetworkError.badUrl
         }
 

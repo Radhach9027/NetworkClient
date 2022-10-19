@@ -3,11 +3,11 @@ import Foundation
 public protocol URLSessionProtocol {
     func dataTaskPublisher(for request: URLRequest) -> URLSession.DataTaskPublisher
 
-    func dataTaskPublisher(for url: URL) -> URLSession.DataTaskPublisher
-
     func downloadTask(with request: URLRequest) -> URLSessionDownloadTask
 
-    func downloadTask(with url: URL) -> URLSessionDownloadTask
+    func uploadTask(with request: URLRequest, from bodyData: Data) -> URLSessionUploadTask
+    
+    func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask
 
     func getAllTasks(completionHandler: @escaping ([URLSessionTask]) -> Void)
 
