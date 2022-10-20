@@ -179,6 +179,7 @@ extension Network {
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         do {
             let _request = try request.makeRequest()
+            delegate.requestType = .download
             delegate.saveToLocation = request.saveDownloadedUrlToLocation
             session.downloadTask(with: _request).resumeBackgroundTask()
             return delegate.downloadProgressSubject
@@ -199,13 +200,14 @@ extension Network {
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
         do {
             let _request = try request.makeRequest()
-            if let fileUrl = request.uploadFromFile {
+            delegate.requestType = .upload
+            if let fileUrl = request.uploadFromFile { // file url
                 session.uploadTask(
                     with: _request,
                     fromFile: fileUrl
                 ).resumeBackgroundTask()
             } else {
-                session.uploadTask(
+                session.uploadTask( // form data or multi-form data
                     with: _request,
                     from: request.uploadFormData!
                 ).resumeBackgroundTask()

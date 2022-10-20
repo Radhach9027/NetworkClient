@@ -6,10 +6,15 @@ final class NetworkSessionDelegate: NSObject,
     URLSessionDelegate,
     URLSessionDownloadDelegate,
     URLSessionDataDelegate {
+    enum RequestType {
+        case upload, download
+    }
+
     var urlSessionDidFinishEvents: ((URLSession) -> Void)?
     var downloadProgressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
     var uploadProgressSubject: PassthroughSubject<UploadNetworkResponse, NetworkError> = .init()
     var saveToLocation: URL?
+    var requestType: RequestType = .download
     private var pinning: SSLPinning?
     private var logger: NetworkLoggerProtocol?
 
@@ -144,25 +149,17 @@ final class NetworkSessionDelegate: NSObject,
             return
         }
 
-        if let logger = logger {
-            logger.logRequest(
-                url: url,
-                error: .init(
-                    title: Constants.downloadFailedTitle,
-                    code: Constants.errorCode,
-                    errorMessage: Constants.downloadFailedMessage,
-                    userMessage: .empty
-                ),
-                type: .error,
-                privacy: .encrypt
-            )
+        switch requestType {
+        case .upload:
+            uploadError(error: error, url: url)
+        case .download:
+            downloadError(error: error, url: url)
+            guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
+                debugPrint("Download failed")
+                return
+            }
+            session.downloadTask(withResumeData: resumeData).resume()
         }
-        downloadProgressSubject.send(completion: .failure(.convertErrorToNetworkError(error: error as NSError)))
-        guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
-            debugPrint("Download failed")
-            return
-        }
-        session.downloadTask(withResumeData: resumeData).resume()
     }
 
     // MARK: URLSessionUpload_Download Finish delegate
@@ -174,11 +171,66 @@ final class NetworkSessionDelegate: NSObject,
 
 private extension NetworkSessionDelegate {
     enum Constants {
+        static let uploadFailedTitle = "Upload failed"
         static let downloadFailedTitle = "Download failed"
         static let downloadFailedMessage = "Failed to download the given url = %@"
+        static let uploadFailedMessage = "Failed to upload the given url = %@"
         static let downloadToLocationTitle = "Download To Location"
         static let downloadToLocationMessage = "Failed to save the url to given location"
-        static let errorCode = -222
+    }
+
+    func downloadError(error: Error, url: URL) {
+        let error: NetworkError = .init(
+            title: Constants.downloadFailedTitle,
+            code: .downloadCode,
+            errorMessage: error.localizedDescription,
+            userMessage: String(format: Constants.downloadFailedMessage, url as CVarArg)
+        )
+
+        guard let logger = logger else {
+            return sendDownloadErrorSubject(error: error)
+        }
+
+        logger.logRequest(
+            url: url,
+            error: error,
+            type: .error,
+            privacy: .open
+        )
+
+        sendDownloadErrorSubject(error: error)
+    }
+
+    func sendDownloadErrorSubject(error: NetworkError) {
+        downloadProgressSubject.send(completion: .failure(error))
+        downloadProgressSubject.send(completion: .finished)
+    }
+
+    func uploadError(error: Error, url: URL) {
+        let error: NetworkError = .init(
+            title: Constants.uploadFailedTitle,
+            code: .uploadCode,
+            errorMessage: error.localizedDescription,
+            userMessage: String(format: Constants.uploadFailedMessage, url as CVarArg)
+        )
+
+        guard let logger = logger else {
+            return sendUploadErrorSubject(error: error)
+        }
+
+        logger.logRequest(
+            url: url,
+            error: error,
+            type: .error,
+            privacy: .open
+        )
+
+        sendUploadErrorSubject(error: error)
+    }
+
+    func sendUploadErrorSubject(error: NetworkError) {
+        uploadProgressSubject.send(completion: .failure(error))
+        uploadProgressSubject.send(completion: .finished)
     }
 
     func save(to file: URL, downloadedUrl: URL) {
@@ -194,7 +246,7 @@ private extension NetworkSessionDelegate {
         } catch let fileError {
             downloadProgressSubject.send(completion: .failure(.init(
                 title: Constants.downloadToLocationTitle,
-                code: Constants.errorCode,
+                code: .downloadCode,
                 errorMessage: fileError.localizedDescription,
                 userMessage: Constants.downloadToLocationMessage
             )))

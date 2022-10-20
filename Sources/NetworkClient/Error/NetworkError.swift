@@ -1,39 +1,39 @@
 import Foundation
 
+public enum NetworkCodes: Codable {
+    case unknown
+    case noInternet // No internet connection
+    case badUrl // Url construction failed
+    case jsonFileError // Error in json conversion or reading
+    case api // Error from api
+    case downloadCode // Download Error Code
+    case uploadCode // Download Error Code
+    case some(Int) // Send custom code if needed
+}
+
+extension NetworkCodes {
+    var value: Int {
+        switch self {
+        case .unknown: return 0
+        case .noInternet: return -1
+        case .badUrl: return -2
+        case .jsonFileError: return -3
+        case .api: return -111
+        case .downloadCode: return -222
+        case .uploadCode: return -333
+        case let .some(code): return code
+        }
+    }
+}
+
 public struct NetworkError: Error, Codable {
     public let title: String
-    public let code: Int
+    public let code: NetworkCodes
     public let errorMessage: String
     public let userMessage: String
 }
 
 extension NetworkError {
-    private enum NetworkCodes {
-        static let jsonFileError = -0
-        static let unknown = 0
-        static let noInternet = -1
-        static let badUrl = -2
-        static let api = -111
-        static let downloadCode = -222
-    }
-
-    private enum Copy {
-        static let fileName = "NetworkErrors"
-        static let fileType = "json"
-        static let noInternet = "Something wrong with the url that has been constructed, Please check and try again"
-        static let noInternetTitle = "No Internet"
-        static let badUrlTitle = "Bar Request Constructed"
-        static let badUrl = "Something wrong with the url that has been constructed, Please check and try again"
-        static let unknown = "An unknown error occurred while processing request, please check and try again."
-        static let HTTPresponseNil = "HTTPURLResponse is nil"
-        static let apiError = "ApiError"
-        static let nsErrorURLKey = "NSErrorFailingURLKey"
-        static let codableConversionError = "NetworErrors Json File"
-        static let codableConversionErrorMessage = "Issue in converting NetworkErrors.json via codable model."
-        static let downloadError = "Download Error"
-        static let downloadErrorMessage = "Download delegate was not set session."
-    }
-
     public static var noInternet: NetworkError {
         NetworkError(
             title: Copy.noInternetTitle,
@@ -61,31 +61,6 @@ extension NetworkError {
         )
     }
 
-    private static var errorInCodableConversion: NetworkError {
-        NetworkError(
-            title: Copy.codableConversionError,
-            code: NetworkCodes.jsonFileError,
-            errorMessage: Copy.codableConversionErrorMessage,
-            userMessage: .empty
-        )
-    }
-
-    private static func makeNetworkErrorModel() throws -> [NetworkError]? {
-        guard let ressourceURL = Bundle.main.url(forResource: Copy.fileName,
-                                                 withExtension: Copy.fileType) else {
-            return nil
-        }
-
-        do {
-            let jsonData = try Data(contentsOf: ressourceURL)
-            let model = try JSONDecoder().decode([NetworkError].self,
-                                                 from: jsonData)
-            return model
-        } catch {
-            throw error
-        }
-    }
-
     static func validateHTTPError(urlResponse: HTTPURLResponse?) -> NetworkError? {
         guard let response = urlResponse else {
             return unknown
@@ -97,7 +72,7 @@ extension NetworkError {
         default:
             do {
                 let errorModel = try makeNetworkErrorModel()
-                return errorModel?.first(where: { $0.code == response.statusCode })
+                return errorModel?.first(where: { $0.code.value == response.statusCode })
             } catch {
                 return .errorInCodableConversion
             }
@@ -116,9 +91,51 @@ extension NetworkError {
 
         return NetworkError(
             title: domain,
-            code: errorcode,
+            code: .some(errorcode),
             errorMessage: errorMessage,
             userMessage: userMessage
         )
+    }
+}
+
+private extension NetworkError {
+    enum Copy {
+        static let fileName = "NetworkErrors"
+        static let fileType = "json"
+        static let noInternet = "Something wrong with the url that has been constructed, Please check and try again"
+        static let noInternetTitle = "No Internet"
+        static let badUrlTitle = "Bar Request Constructed"
+        static let badUrl = "Something wrong with the url that has been constructed, Please check and try again"
+        static let unknown = "An unknown error occurred while processing request, please check and try again."
+        static let HTTPresponseNil = "HTTPURLResponse is nil"
+        static let apiError = "ApiError"
+        static let nsErrorURLKey = "NSErrorFailingURLKey"
+        static let codableConversionError = "NetworErrors Json File"
+        static let codableConversionErrorMessage = "Issue in converting NetworkErrors.json via codable model."
+    }
+
+    static var errorInCodableConversion: NetworkError {
+        NetworkError(
+            title: Copy.codableConversionError,
+            code: NetworkCodes.jsonFileError,
+            errorMessage: Copy.codableConversionErrorMessage,
+            userMessage: .empty
+        )
+    }
+
+    static func makeNetworkErrorModel() throws -> [NetworkError]? {
+        guard let ressourceURL = Bundle.main.url(forResource: Copy.fileName,
+                                                 withExtension: Copy.fileType) else {
+            return nil
+        }
+
+        do {
+            let jsonData = try Data(contentsOf: ressourceURL)
+            let model = try JSONDecoder().decode([NetworkError].self,
+                                                 from: jsonData)
+            return model
+        } catch {
+            throw error
+        }
     }
 }

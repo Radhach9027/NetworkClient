@@ -2,7 +2,7 @@ import Foundation
 
 public enum UploadNetworkResponse {
     case progress(percentage: Float)
-    case response(data: Data?)
+    case response(data: Data)
 }
 
 public enum DownloadNetworkResponse {
