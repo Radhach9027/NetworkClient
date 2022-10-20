@@ -171,8 +171,6 @@ final class NetworkSessionDelegate: NSObject,
 
 private extension NetworkSessionDelegate {
     enum Constants {
-        static let uploadFailedTitle = "Upload failed"
-        static let downloadFailedTitle = "Download failed"
         static let downloadFailedMessage = "Failed to download the given url = %@"
         static let uploadFailedMessage = "Failed to upload the given url = %@"
         static let downloadToLocationTitle = "Download To Location"
@@ -181,9 +179,9 @@ private extension NetworkSessionDelegate {
 
     func downloadError(error: Error, url: URL) {
         let error: NetworkError = .init(
-            title: Constants.downloadFailedTitle,
+            title: .download,
             code: .downloadCode,
-            errorMessage: error.localizedDescription,
+            errorMessage: .some(error.localizedDescription),
             userMessage: String(format: Constants.downloadFailedMessage, url as CVarArg)
         )
 
@@ -208,9 +206,9 @@ private extension NetworkSessionDelegate {
 
     func uploadError(error: Error, url: URL) {
         let error: NetworkError = .init(
-            title: Constants.uploadFailedTitle,
+            title: .upload,
             code: .uploadCode,
-            errorMessage: error.localizedDescription,
+            errorMessage: .some(error.localizedDescription),
             userMessage: String(format: Constants.uploadFailedMessage, url as CVarArg)
         )
 
@@ -245,9 +243,9 @@ private extension NetworkSessionDelegate {
             )
         } catch let fileError {
             downloadProgressSubject.send(completion: .failure(.init(
-                title: Constants.downloadToLocationTitle,
+                title: .download,
                 code: .downloadCode,
-                errorMessage: fileError.localizedDescription,
+                errorMessage: .some(fileError.localizedDescription),
                 userMessage: Constants.downloadToLocationMessage
             )))
         }
