@@ -6,7 +6,6 @@ public enum SSLPinning {
 }
 
 extension SSLPinning {
-    
     func publicKeyPinning(
         serverTrust: SecTrust,
         hash: String,
@@ -19,7 +18,7 @@ extension SSLPinning {
         }
         return false
     }
-    
+
     func cetificatePinning(
         certificate: SecCertificate,
         hash: String,

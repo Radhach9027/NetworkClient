@@ -7,6 +7,13 @@ public struct NetworkError: Error, Codable {
     public let userMessage: String
 }
 
+private struct GlobalError: Codable {
+    let title: String
+    let code: Int
+    let errorMessage: String
+    let userMessage: String
+}
+
 extension NetworkError {
     public static var noInternet: NetworkError {
         NetworkError(
@@ -31,7 +38,7 @@ extension NetworkError {
             title: .httpResponse,
             code: .unknown,
             errorMessage: .unknown,
-            userMessage: NetworkErrorMessage.unknown.message
+            userMessage: NetworkErrorMessage.unknown.value
         )
     }
 
@@ -46,7 +53,15 @@ extension NetworkError {
         default:
             do {
                 let errorModel = try makeNetworkErrorModel()
-                return errorModel?.first(where: { $0.code.value == response.statusCode })
+                guard let model = errorModel?.first(where: {$0.code == response.statusCode}) else {
+                    return .errorInGloabalErrorsConversion
+                }
+                return .init(
+                    title: .some(model.title),
+                    code: .some(model.code),
+                    errorMessage: .some(model.errorMessage),
+                    userMessage: model.userMessage
+                )
             } catch {
                 return .errorInCodableConversion
             }
@@ -70,15 +85,6 @@ extension NetworkError {
             userMessage: userMessage
         )
     }
-    
-    public static func test() {
-        do {
-            let errorModel = try makeNetworkErrorModel()
-            debugPrint(errorModel)
-        } catch {
-            debugPrint("Failed")
-        }
-    }
 }
 
 private extension NetworkError {
@@ -86,6 +92,7 @@ private extension NetworkError {
         static let fileName = "NetworkErrors"
         static let fileType = "json"
         static let nsErrorURLKey = "NSErrorFailingURLKey"
+        static let globalError = "Failed to convert GlobalError object while response status is not available in NetworkErrors.json"
     }
 
     static var errorInCodableConversion: NetworkError {
@@ -96,16 +103,27 @@ private extension NetworkError {
             userMessage: .empty
         )
     }
+    
+    static var errorInGloabalErrorsConversion: NetworkError {
+        NetworkError(
+            title: .json,
+            code: .jsonFileError,
+            errorMessage: .some(Copy.globalError),
+            userMessage: .empty
+        )
+    }
 
-    static func makeNetworkErrorModel() throws -> [NetworkError]? {
-        guard let ressourceURL = Bundle.main.url(forResource: Copy.fileName,
-                                                 withExtension: Copy.fileType) else {
+    static func makeNetworkErrorModel() throws -> [GlobalError]? {
+        guard let ressourceURL = Bundle.module.url(
+            forResource: Copy.fileName,
+            withExtension: Copy.fileType
+        ) else {
             return nil
         }
 
         do {
             let jsonData = try Data(contentsOf: ressourceURL)
-            let model = try JSONDecoder().decode([NetworkError].self,
+            let model = try JSONDecoder().decode([GlobalError].self,
                                                  from: jsonData)
             return model
         } catch {

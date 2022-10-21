@@ -14,7 +14,7 @@ public enum NetworkErrorTitle: Codable {
 }
 
 extension NetworkErrorTitle {
-    var message: String {
+    public var value: String {
         switch self {
             case .noInternetTitle: return "No internet"
             case .badUrlTitle: return "Bar request constructed"

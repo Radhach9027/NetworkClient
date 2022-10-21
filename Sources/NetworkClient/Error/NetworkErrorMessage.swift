@@ -9,7 +9,7 @@ public enum NetworkErrorMessage: Codable {
 }
 
 extension NetworkErrorMessage {
-    var message: String {
+    public var value: String {
         switch self {
             case .noInternet: return "Something wrong with the url that has been constructed, Please check and try again"
             case .badUrl: return "Something wrong with the url that has been constructed, Please check and try again"

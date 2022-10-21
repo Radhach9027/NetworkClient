@@ -12,7 +12,7 @@ public enum NetworkErrorCode: Codable {
 }
 
 extension NetworkErrorCode {
-    var value: Int {
+    public var value: Int {
         switch self {
             case .unknown: return 0
             case .noInternet: return -1
