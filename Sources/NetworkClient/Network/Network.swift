@@ -201,8 +201,8 @@ extension Network {
         do {
             let _request = try request.makeRequest()
             delegate.requestType = .upload
-            switch request.uploadFromFile {
-                case .data(let data): 
+            switch request.uploadFile {
+                case .data(let data):
                     session.uploadTask(
                         with: _request,
                         from: data

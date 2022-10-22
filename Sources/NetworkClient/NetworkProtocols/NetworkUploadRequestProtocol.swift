@@ -6,5 +6,5 @@ public enum UploadFileFrom {
 }
 
 public protocol NetworkUploadRequestProtocol: NetworkRequestProtocol {
-    var uploadFromFile: UploadFileFrom { get }
+    var uploadFile: UploadFileFrom { get }
 }
