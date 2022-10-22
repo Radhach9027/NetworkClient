@@ -9,7 +9,7 @@ public protocol URLSessionProtocol {
     
     func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask
 
-    func getAllTasks(completionHandler: @escaping ([URLSessionTask]) -> Void)
+    func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
 
     func invalidateAndCancel()
 }
