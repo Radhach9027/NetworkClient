@@ -10,14 +10,14 @@ public protocol RequestProtocol {
 
 public protocol UploadProtocol {
     func upload(
-        with request: NetworkRequestProtocol,
+        with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
 }
 
 public protocol DownloadProtocol {
     func download(
-        for request: NetworkRequestProtocol,
+        for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
 }

@@ -174,7 +174,7 @@ extension Network: NetworkProtocol {
 
 extension Network {
     public func download(
-        for request: NetworkRequestProtocol,
+        for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         do {
@@ -195,22 +195,23 @@ extension Network {
 
 extension Network {
     public func upload(
-        with request: NetworkRequestProtocol,
+        with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
         do {
             let _request = try request.makeRequest()
             delegate.requestType = .upload
-            if let fileUrl = request.uploadFromFile { // file url
-                session.uploadTask(
-                    with: _request,
-                    fromFile: fileUrl
-                ).resumeBackgroundTask()
-            } else {
-                session.uploadTask( // form data or multi-form data
-                    with: _request,
-                    from: request.uploadFormData!
-                ).resumeBackgroundTask()
+            switch request.uploadFromFile {
+                case .data(let data): 
+                    session.uploadTask(
+                        with: _request,
+                        from: data
+                    ).resumeBackgroundTask()
+                case .url(let url):
+                    session.uploadTask(
+                        with: _request,
+                        fromFile: url
+                    ).resumeBackgroundTask()
             }
             return delegate.uploadProgressSubject
 

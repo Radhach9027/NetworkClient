@@ -153,12 +153,7 @@ final class NetworkSessionDelegate: NSObject,
         case .upload:
             uploadError(error: error, url: url)
         case .download:
-            downloadError(error: error, url: url)
-            guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
-                debugPrint("Download failed")
-                return
-            }
-            session.downloadTask(withResumeData: resumeData).resume()
+            downloadError(error: error, url: url, session: session)
         }
     }
 
@@ -177,7 +172,7 @@ private extension NetworkSessionDelegate {
         static let downloadToLocationMessage = "Failed to save the url to given location"
     }
 
-    func downloadError(error: Error, url: URL) {
+    func downloadError(error: Error, url: URL, session: URLSession) {
         let error: NetworkError = .init(
             title: .download,
             code: .downloadCode,
@@ -197,6 +192,11 @@ private extension NetworkSessionDelegate {
         )
 
         sendDownloadErrorSubject(error: error)
+        guard let resumeData = (error as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data else {
+            debugPrint("Download failed")
+            return
+        }
+        session.downloadTask(withResumeData: resumeData).resumeBackgroundTask()
     }
 
     func sendDownloadErrorSubject(error: NetworkError) {
