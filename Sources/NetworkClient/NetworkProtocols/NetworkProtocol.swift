@@ -13,6 +13,11 @@ public protocol UploadProtocol {
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
+    
+    func uploadMultipart(
+        for request: NetworkMultipartUploadRequestProtocol,
+        receive: DispatchQueue
+    ) -> AnyPublisher<Data, NetworkError>
 }
 
 public protocol DownloadProtocol {

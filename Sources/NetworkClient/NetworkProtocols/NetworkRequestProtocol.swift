@@ -6,7 +6,6 @@ public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCache
     var urlComponents: URLComponents? { get }
     var httpHeaderFields: NetworkHTTPHeaderField? { get }
     var httpBodyParameters: NetworkBodyRequestParameters? { get }
-    var isNetworkReachable: Bool { get }
     func makeRequest() throws -> URLRequest
 }
 
@@ -22,11 +21,7 @@ public extension NetworkRequestProtocol {
     var apiKey: String? {
         nil
     }
-
-    var isNetworkReachable: Bool {
-        Network.isInternetReachable
-    }
-
+    
     func makeRequest() throws -> URLRequest {
         guard let url = urlComponents?.url,
               url.isValid else {
@@ -57,7 +52,7 @@ public extension NetworkRequestProtocol {
     }
 
     func manageInternetConnectivityBasedOnCache(request: URLRequest) -> NetworkError? {
-        guard isNetworkReachable else {
+        guard Network.isInternetReachable else {
             return .noInternet
         }
 

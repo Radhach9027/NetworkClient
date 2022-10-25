@@ -20,6 +20,7 @@ public enum NetworkHTTPHeaderKeys {
 
 public enum NetworkHTTPHeaderValues {
     case json
+    case multipartFormData(boundary: String)
     case other(value: String)
 }
 
@@ -43,6 +44,8 @@ extension NetworkHTTPHeaderValues: Hashable {
         switch self {
         case .json:
             return "application/json"
+        case let .multipartFormData(boundary):
+            return "multipart/form-data; boundary=\(boundary)"
         case let .other(value):
             return value
         }
