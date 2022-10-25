@@ -182,10 +182,10 @@ extension Network {
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
         do {
-            let _request = try request.makeRequest()
+            let downloadRequest = try request.makeRequest()
             delegate.requestType = .download
             delegate.saveToLocation = request.saveDownloadedUrlToLocation
-            session.downloadTask(with: _request).resumeBackgroundTask()
+            session.downloadTask(with: downloadRequest).resumeBackgroundTask()
             return delegate.downloadProgressSubject
         } catch let error as NSError {
             let failure = PassthroughSubject<DownloadNetworkResponse, NetworkError>()
@@ -203,17 +203,17 @@ extension Network {
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
         do {
-            let _request = try request.makeRequest()
+            let uploadRequest = try request.makeRequest()
             delegate.requestType = .upload
             switch request.uploadFile {
                 case .data(let data):
                     session.uploadTask(
-                        with: _request,
+                        with: uploadRequest,
                         from: data
                     ).resumeBackgroundTask()
                 case .url(let url):
                     session.uploadTask(
-                        with: _request,
+                        with: uploadRequest,
                         fromFile: url
                     ).resumeBackgroundTask()
             }
