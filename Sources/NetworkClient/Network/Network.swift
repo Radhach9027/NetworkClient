@@ -2,9 +2,9 @@ import Combine
 import Foundation
 
 public enum SessionConfiguration {
-    case `default`
-    case background(identifer: String)
-    case ephemeral
+    case `default`(queue: OperationQueue? = nil)
+    case background(identifer: String, queue: OperationQueue? = nil)
+    case ephemeral(queue: OperationQueue? = nil)
 }
 
 public final class Network {
@@ -46,24 +46,25 @@ extension Network {
         )
 
         switch config {
-        case .default:
+        case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate),
+                session: URLSession.defaultSession(delegate: delegate, queue: queue),
                 logger: logger,
                 delegate: delegate
             )
-        case let .background(identifer):
+        case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
                     delegate: delegate,
-                    identifier: identifer
+                    identifier: identifer,
+                    queue: queue
                 ),
                 logger: logger,
                 delegate: delegate
             )
-        case .ephemeral:
+        case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate),
+                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
                 logger: logger,
                 delegate: delegate
             )
@@ -77,24 +78,25 @@ extension Network {
         let delegate = NetworkSessionDelegate(urlSessionDidFinishEvents: urlSessionDidFinishEvents)
 
         switch config {
-        case .default:
+        case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate),
+                session: URLSession.defaultSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )
-        case let .background(identifer):
+        case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
                     delegate: delegate,
-                    identifier: identifer
+                    identifier: identifer,
+                    queue: queue
                 ),
                 logger: nil,
                 delegate: delegate
             )
-        case .ephemeral:
+        case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate),
+                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )
@@ -112,24 +114,25 @@ extension Network {
         )
 
         switch config {
-        case .default:
+        case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate),
+                session: URLSession.defaultSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )
-        case let .background(identifer):
+        case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
                     delegate: delegate,
-                    identifier: identifer
+                    identifier: identifer,
+                    queue: queue
                 ),
                 logger: nil,
                 delegate: delegate
             )
-        case .ephemeral:
+        case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate),
+                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )
