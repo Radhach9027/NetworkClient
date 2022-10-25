@@ -127,50 +127,46 @@ extension Network: NetworkProtocol {
     ) -> AnyPublisher<Data, NetworkError> {
         do {
             let request = try request.makeRequest()
-            return makeRequest(request: request, receive: receive)
+            return session.dataTaskPublisher(for: request)
+                .receive(on: receive)
+                .tryMap { [weak self] data, response in
+                    guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
+                        return data
+                    }
+
+                    if let logger = self?.logger {
+                        logger.logRequest(
+                            url: request.url!,
+                            error: error,
+                            type: .error,
+                            privacy: .encrypt
+                        )
+                    }
+
+                    throw error
+                }
+                .mapError { [weak self] error in
+                    guard let error = error as? NetworkError else {
+                        return NetworkError.convertErrorToNetworkError(error: error as NSError)
+                    }
+
+                    if let logger = self?.logger {
+                        logger.logRequest(
+                            url: request.url!,
+                            error: error,
+                            type: .error,
+                            privacy: .encrypt
+                        )
+                    }
+
+                    return error
+                }
+                .eraseToAnyPublisher()
 
         } catch let error as NSError {
             return Fail(error: NetworkError.convertErrorToNetworkError(error: error))
                 .eraseToAnyPublisher()
         }
-    }
-
-    private func makeRequest(request: URLRequest, receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
-        session.dataTaskPublisher(for: request)
-            .receive(on: receive)
-            .tryMap { [weak self] data, response in
-                guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
-                    return data
-                }
-
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: request.url!,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
-                }
-
-                throw error
-            }
-            .mapError { [weak self] error in
-                guard let error = error as? NetworkError else {
-                    return NetworkError.convertErrorToNetworkError(error: error as NSError)
-                }
-
-                if let logger = self?.logger {
-                    logger.logRequest(
-                        url: request.url!,
-                        error: error,
-                        type: .error,
-                        privacy: .encrypt
-                    )
-                }
-
-                return error
-            }
-            .eraseToAnyPublisher()
     }
 }
 
