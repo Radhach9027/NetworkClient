@@ -134,7 +134,7 @@ extension Network: NetworkProtocol {
                 .eraseToAnyPublisher()
         }
     }
-    
+
     private func makeRequest(request: URLRequest, receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
         session.dataTaskPublisher(for: request)
             .receive(on: receive)
@@ -142,7 +142,7 @@ extension Network: NetworkProtocol {
                 guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
                     return data
                 }
-                
+
                 if let logger = self?.logger {
                     logger.logRequest(
                         url: request.url!,
@@ -151,14 +151,14 @@ extension Network: NetworkProtocol {
                         privacy: .encrypt
                     )
                 }
-                
+
                 throw error
             }
             .mapError { [weak self] error in
                 guard let error = error as? NetworkError else {
                     return NetworkError.convertErrorToNetworkError(error: error as NSError)
                 }
-                
+
                 if let logger = self?.logger {
                     logger.logRequest(
                         url: request.url!,
@@ -167,7 +167,7 @@ extension Network: NetworkProtocol {
                         privacy: .encrypt
                     )
                 }
-                
+
                 return error
             }
             .eraseToAnyPublisher()
@@ -206,16 +206,16 @@ extension Network {
             let uploadRequest = try request.makeRequest()
             delegate.requestType = .upload
             switch request.uploadFile {
-                case .data(let data):
-                    session.uploadTask(
-                        with: uploadRequest,
-                        from: data
-                    ).resumeBackgroundTask()
-                case .url(let url):
-                    session.uploadTask(
-                        with: uploadRequest,
-                        fromFile: url
-                    ).resumeBackgroundTask()
+            case let .data(data):
+                session.uploadTask(
+                    with: uploadRequest,
+                    from: data
+                ).resumeBackgroundTask()
+            case let .url(url):
+                session.uploadTask(
+                    with: uploadRequest,
+                    fromFile: url
+                ).resumeBackgroundTask()
             }
             return delegate.uploadProgressSubject
 
@@ -225,7 +225,7 @@ extension Network {
             return failure
         }
     }
-    
+
     public func uploadMultipart(
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue

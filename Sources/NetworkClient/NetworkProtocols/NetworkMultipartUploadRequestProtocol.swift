@@ -14,14 +14,14 @@ public protocol NetworkMultipartUploadRequestProtocol: NetworkRequestProtocol {
 public extension NetworkMultipartUploadRequestProtocol {
     func makeFormBody() -> Data {
         switch multipartFormDataType {
-            case let .data(name, data, mimeType):
-                return dataFormField(
-                    name: name,
-                    data: data,
-                    mimeType: mimeType
-                )
-            case let .form(name, value):
-                return textFormField(name: name, value: value)
+        case let .data(name, data, mimeType):
+            return dataFormField(
+                name: name,
+                data: data,
+                mimeType: mimeType
+            )
+        case let .form(name, value):
+            return textFormField(name: name, value: value)
         }
     }
 }
