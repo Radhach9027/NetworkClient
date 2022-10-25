@@ -4,6 +4,7 @@ import Foundation
 public enum SessionConfiguration {
     case `default`
     case background(identifer: String)
+    case ephemeral
 }
 
 public final class Network {
@@ -60,6 +61,12 @@ extension Network {
                 logger: logger,
                 delegate: delegate
             )
+        case .ephemeral:
+            self.init(
+                session: URLSession.ephemeralSession(delegate: delegate),
+                logger: logger,
+                delegate: delegate
+            )
         }
     }
 
@@ -82,6 +89,12 @@ extension Network {
                     delegate: delegate,
                     identifier: identifer
                 ),
+                logger: nil,
+                delegate: delegate
+            )
+        case .ephemeral:
+            self.init(
+                session: URLSession.ephemeralSession(delegate: delegate),
                 logger: nil,
                 delegate: delegate
             )
@@ -111,6 +124,12 @@ extension Network {
                     delegate: delegate,
                     identifier: identifer
                 ),
+                logger: nil,
+                delegate: delegate
+            )
+        case .ephemeral:
+            self.init(
+                session: URLSession.ephemeralSession(delegate: delegate),
                 logger: nil,
                 delegate: delegate
             )

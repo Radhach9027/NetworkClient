@@ -16,4 +16,12 @@ extension URLSession {
             delegateQueue: OperationQueue()
         )
     }
+    
+    static func ephemeralSession(delegate: NetworkSessionDelegate) -> URLSession {
+        URLSession(
+            configuration: .ephemeral,
+            delegate: delegate,
+            delegateQueue: nil
+        )
+    }
 }
