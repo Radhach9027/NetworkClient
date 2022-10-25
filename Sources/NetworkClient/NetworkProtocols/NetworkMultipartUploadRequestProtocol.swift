@@ -8,44 +8,25 @@ public enum MultipartFormDataType {
 public protocol NetworkMultipartUploadRequestProtocol: NetworkRequestProtocol {
     var boundary: String { get }
     var multipartFormDataType: MultipartFormDataType { get }
+    func makeFormBody() -> Data
 }
 
 public extension NetworkMultipartUploadRequestProtocol {
-    func makeRequest() throws -> URLRequest {
-        guard let url = urlComponents?.url,
-              url.isValid else {
-            throw NetworkError.badUrl
+    func makeFormBody() -> Data {
+        switch multipartFormDataType {
+            case let .data(name, data, mimeType):
+                return dataFormField(
+                    name: name,
+                    data: data,
+                    mimeType: mimeType
+                )
+            case let .form(name, value):
+                return textFormField(name: name, value: value)
         }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = httpMethod.rawValue
-        httpHeaderFields?.headers.forEach {
-            request.setValue($0.value.description,
-                             forHTTPHeaderField: $0.key.description)
-        }
-        request.httpBody = makeFormBody()
-        guard let isReachableError = manageInternetConnectivityBasedOnCache(request: request) else {
-            return request
-        }
-
-        throw isReachableError
     }
 }
 
 private extension NetworkMultipartUploadRequestProtocol {
-    func makeFormBody() -> Data {
-        switch multipartFormDataType {
-        case let .data(name, data, mimeType):
-            return dataFormField(
-                name: name,
-                data: data,
-                mimeType: mimeType
-            )
-        case let .form(name, value):
-            return textFormField(name: name, value: value)
-        }
-    }
-
     func textFormField(
         name: String,
         value: String

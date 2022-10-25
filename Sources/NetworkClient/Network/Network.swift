@@ -227,15 +227,18 @@ extension Network {
     }
     
     public func uploadMultipart(
-        for request: NetworkMultipartUploadRequestProtocol,
+        with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> AnyPublisher<Data, NetworkError> {
+    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
         do {
             let multipartRequest = try request.makeRequest()
-            return makeRequest(request: multipartRequest, receive: receive)
+            delegate.requestType = .upload
+            session.uploadTask(with: multipartRequest, from: request.makeFormBody()).resumeBackgroundTask()
+            return delegate.uploadProgressSubject
         } catch let error as NSError {
-            return Fail(error: NetworkError.convertErrorToNetworkError(error: error))
-                .eraseToAnyPublisher()
+            let failure = PassthroughSubject<UploadNetworkResponse, NetworkError>()
+            failure.send(completion: .failure(NetworkError.convertErrorToNetworkError(error: error)))
+            return failure
         }
     }
 }

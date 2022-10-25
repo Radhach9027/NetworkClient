@@ -15,9 +15,9 @@ public protocol UploadProtocol {
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
     
     func uploadMultipart(
-        for request: NetworkMultipartUploadRequestProtocol,
+        with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> AnyPublisher<Data, NetworkError>
+    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
 }
 
 public protocol DownloadProtocol {
