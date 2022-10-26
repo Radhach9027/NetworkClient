@@ -6,6 +6,12 @@ public protocol RequestProtocol {
         for request: NetworkRequestProtocol,
         receive: DispatchQueue
     ) -> AnyPublisher<Data, NetworkError>
+    
+    func request<T>(
+        for request: NetworkRequestProtocol,
+        codable: T.Type,
+        receive: DispatchQueue
+    ) -> AnyPublisher<T, NetworkError> where T: Decodable
 }
 
 public protocol UploadProtocol {

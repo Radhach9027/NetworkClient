@@ -85,6 +85,33 @@ extension NetworkError {
             userMessage: userMessage
         )
     }
+    
+    static func dataDecoding<T>(codable: T.Type, data: Data) throws -> T where T: Decodable {
+        let decoder = JSONDecoder()
+        var message: String = .empty
+        var path: String = .empty
+        
+        do {
+            let model = try decoder.decode(T.self, from: data)
+            return model
+        } catch let DecodingError.dataCorrupted(context) {
+            throw Self.jsonCodableConversionError(message: context.debugDescription)
+        } catch let DecodingError.keyNotFound(key, context) {
+            message = "Key '\(key)' not found: \(context.debugDescription)"
+            path = "codingPath: \(context.codingPath)"
+            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+        } catch let DecodingError.valueNotFound(value, context) {
+            message = "Value '\(value)' not found: \(context.debugDescription)"
+            path = "codingPath: \(context.codingPath)"
+            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+        } catch let DecodingError.typeMismatch(type, context)  {
+            message = "Type '\(type)' mismatch: \(context.debugDescription)"
+            path = "codingPath: \(context.codingPath)"
+            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+        } catch {
+            throw Self.jsonCodableConversionError(message: error.localizedDescription)
+        }
+    }
 }
 
 private extension NetworkError {
@@ -113,6 +140,15 @@ private extension NetworkError {
         )
     }
 
+    static func jsonCodableConversionError(message: String) -> NetworkError {
+        NetworkError(
+            title: .json,
+            code: .jsonFileError,
+            errorMessage: .some(message),
+            userMessage: .empty
+        )
+    }
+    
     static func makeNetworkErrorModel() throws -> [GlobalError]? {
         guard let ressourceURL = Bundle.module.url(
             forResource: Copy.fileName,

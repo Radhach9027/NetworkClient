@@ -190,6 +190,45 @@ extension Network: NetworkProtocol {
                 .eraseToAnyPublisher()
         }
     }
+    
+    public func request<T>(
+        for request: NetworkRequestProtocol,
+        codable: T.Type,
+        receive: DispatchQueue
+    ) -> AnyPublisher<T, NetworkError> where T: Decodable {
+        do {
+            let request = try request.makeRequest()
+            return session.dataTaskPublisher(for: request)
+                .receive(on: receive)
+                .tryMap { data, response -> T in
+                    guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
+                        return try NetworkError.dataDecoding(codable: T.self, data: data)
+                    }
+                    throw error
+                }
+                .mapError { [weak self] error in
+                    guard let error = error as? NetworkError else {
+                        return NetworkError.convertErrorToNetworkError(error: error as NSError)
+                    }
+                    
+                    if let logger = self?.logger {
+                        logger.logRequest(
+                            url: request.url!,
+                            error: error,
+                            type: .error,
+                            privacy: .encrypt
+                        )
+                    }
+                    
+                    return error
+                }
+                .eraseToAnyPublisher()
+            
+        } catch let error as NSError {
+            return Fail(error: NetworkError.convertErrorToNetworkError(error: error))
+                .eraseToAnyPublisher()
+        }
+    }
 }
 
 // MARK: Download Tasks
