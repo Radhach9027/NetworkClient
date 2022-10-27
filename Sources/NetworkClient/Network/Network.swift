@@ -303,16 +303,41 @@ extension Network {
 // MARK: Cancel Tasks
 
 extension Network {
-    public func cancelAllTasks() {
-        session.invalidateAndCancel()
-    }
-
-    public func cancelTaskWithUrl(url: URL) {
+    public func suspendRequest(request: URLRequest) {
         session.getAllTasks { task in
             task
                 .filter { $0.state == .running }
-                .filter { $0.originalRequest?.url == url }.first?
+                .filter { $0.originalRequest == request }.first?
+                .suspend()
+        }
+    }
+    
+    public func resumeRequest(request: URLRequest) {
+        session.getAllTasks { task in
+            task
+                .filter { $0.state == .suspended }
+                .filter { $0.originalRequest == request }.first?
+                .resume()
+        }
+    }
+    
+    public func cancelRequest(request: URLRequest) {
+        session.getAllTasks { task in
+            task
+                .filter { $0.state == .running }
+                .filter { $0.originalRequest == request }.first?
                 .cancel()
+        }
+    }
+    
+    public func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void) {
+        session.getAllTasks(completionHandler: completionHandler)
+    }
+
+    
+    public func cancelAllRequests() {
+        session.flush {
+            debugPrint("Removed all requests from NetworkClient")
         }
     }
 }

@@ -6,7 +6,7 @@ public protocol RequestProtocol {
         for request: NetworkRequestProtocol,
         receive: DispatchQueue
     ) -> AnyPublisher<Data, NetworkError>
-    
+
     func request<T>(
         for request: NetworkRequestProtocol,
         codable: T.Type,
@@ -19,7 +19,7 @@ public protocol UploadProtocol {
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
-    
+
     func uploadMultipart(
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
@@ -34,9 +34,15 @@ public protocol DownloadProtocol {
 }
 
 public protocol SessionCancelProtocol {
-    func cancelAllTasks()
+    func suspendRequest(request: URLRequest)
 
-    func cancelTaskWithUrl(url: URL)
+    func resumeRequest(request: URLRequest)
+
+    func cancelRequest(request: URLRequest)
+
+    func cancelAllRequests()
+    
+    func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
 
     static var isInternetReachable: Bool { get }
 }

@@ -99,6 +99,7 @@ final class NetworkSessionDelegate: NSObject,
         totalBytesExpectedToWrite: Int64
     ) {
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        debugPrint("NetworkSessionDelegate === progress \(progress) === downloadTask")
         downloadProgressSubject.send(.progress(percentage: progress))
     }
 

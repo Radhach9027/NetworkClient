@@ -11,7 +11,8 @@ public protocol URLSessionProtocol {
 
     func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
 
-    func invalidateAndCancel()
+    func flush(completionHandler: @escaping @Sendable () -> Void)
+
 }
 
 extension URLSession: URLSessionProtocol {}
