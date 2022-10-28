@@ -33,7 +33,7 @@ public protocol DownloadProtocol {
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
 }
 
-public protocol SessionCancelProtocol {
+public protocol URLSessionTaskProtocol {
     func suspendRequest(request: URLRequest)
 
     func resumeRequest(request: URLRequest)
@@ -47,4 +47,4 @@ public protocol SessionCancelProtocol {
     static var isInternetReachable: Bool { get }
 }
 
-public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, SessionCancelProtocol {}
+public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, URLSessionTaskProtocol {}

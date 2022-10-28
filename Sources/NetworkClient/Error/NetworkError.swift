@@ -88,26 +88,17 @@ extension NetworkError {
     
     static func dataDecoding<T>(codable: T.Type, data: Data) throws -> T where T: Decodable {
         let decoder = JSONDecoder()
-        var message: String = .empty
-        var path: String = .empty
-        
         do {
             let model = try decoder.decode(T.self, from: data)
             return model
         } catch let DecodingError.dataCorrupted(context) {
             throw Self.jsonCodableConversionError(message: context.debugDescription)
-        } catch let DecodingError.keyNotFound(key, context) {
-            message = "Key '\(key)' not found: \(context.debugDescription)"
-            path = "codingPath: \(context.codingPath)"
-            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+        } catch let DecodingError.keyNotFound(key, _) {
+            throw Self.jsonCodableConversionError(message: "No value associated with key = '\(key.stringValue)' in '\(T.self)' model")
         } catch let DecodingError.valueNotFound(value, context) {
-            message = "Value '\(value)' not found: \(context.debugDescription)"
-            path = "codingPath: \(context.codingPath)"
-            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+            throw Self.jsonCodableConversionError(message: "'\(value)' not found: \(context.debugDescription) in '\(T.self)' model")
         } catch let DecodingError.typeMismatch(type, context)  {
-            message = "Type '\(type)' mismatch: \(context.debugDescription)"
-            path = "codingPath: \(context.codingPath)"
-            throw Self.jsonCodableConversionError(message: "\(message) \n \(path)")
+            throw Self.jsonCodableConversionError(message: "'\(type)' mismatch: \(context.debugDescription) in '\(T.self)' model")
         } catch {
             throw Self.jsonCodableConversionError(message: error.localizedDescription)
         }

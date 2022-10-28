@@ -21,7 +21,7 @@ final class NetworkSessionDelegate: NSObject,
     init(
         pinning: SSLPinning? = nil,
         logger: NetworkLoggerProtocol? = nil,
-        urlSessionDidFinishEvents: ((URLSession) -> Void)?
+        urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
     ) {
         self.pinning = pinning
         self.logger = logger
