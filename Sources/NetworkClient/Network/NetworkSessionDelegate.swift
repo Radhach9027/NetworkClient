@@ -197,7 +197,7 @@ private extension NetworkSessionDelegate {
             debugPrint("Download failed")
             return
         }
-        session.downloadTask(withResumeData: resumeData).resumeBackgroundTask()
+        session.downloadTask(withResumeData: resumeData).resumeTask()
     }
 
     func sendDownloadErrorSubject(error: NetworkError) {

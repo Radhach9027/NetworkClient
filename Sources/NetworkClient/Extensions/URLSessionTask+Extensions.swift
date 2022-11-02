@@ -1,7 +1,7 @@
 import Foundation
 
 extension URLSessionTask {
-    func resumeBackgroundTask() {
+    func resumeTask() {
         resume()
     }
 }

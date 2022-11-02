@@ -12,6 +12,11 @@ public protocol RequestProtocol {
         codable: T.Type,
         receive: DispatchQueue
     ) -> AnyPublisher<T, NetworkError> where T: Decodable
+    
+    func serialRequests(
+        for requests: [NetworkRequestProtocol],
+        receive: DispatchQueue
+    ) -> PassthroughSubject<Data?, NetworkError>
 }
 
 public protocol UploadProtocol {
@@ -43,8 +48,6 @@ public protocol URLSessionTaskProtocol {
     func cancelAllRequests()
     
     func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
-
-    static var isInternetReachable: Bool { get }
 }
 
 public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, URLSessionTaskProtocol {}
