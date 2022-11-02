@@ -212,7 +212,6 @@ extension Network: NetworkProtocol {
                     guard let error = error as? NetworkError else {
                         return NetworkError.convertErrorToNetworkError(error: error as NSError)
                     }
-                    
                     return error
                 })
                 .eraseToAnyPublisher()
