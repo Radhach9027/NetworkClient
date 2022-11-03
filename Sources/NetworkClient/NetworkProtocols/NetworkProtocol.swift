@@ -39,11 +39,11 @@ public protocol DownloadProtocol {
 }
 
 public protocol URLSessionTaskProtocol {
-    func suspendRequest(request: URLRequest)
+    func suspend(for request: URLRequest)
 
-    func resumeRequest(request: URLRequest)
+    func resume(for request: URLRequest)
 
-    func cancelRequest(request: URLRequest)
+    func cancel(for request: URLRequest)
 
     func cancelAllRequests()
     

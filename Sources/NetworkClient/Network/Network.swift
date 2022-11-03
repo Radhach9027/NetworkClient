@@ -332,7 +332,7 @@ extension Network {
 // MARK: Cancel Tasks
 
 extension Network {
-    public func suspendRequest(request: URLRequest) {
+    public func suspend(for request: URLRequest) {
         session.getAllTasks { task in
             task
                 .filter { $0.state == .running }
@@ -341,7 +341,7 @@ extension Network {
         }
     }
 
-    public func resumeRequest(request: URLRequest) {
+    public func resume(for request: URLRequest) {
         session.getAllTasks { task in
             task
                 .filter { $0.state == .suspended }
@@ -350,7 +350,7 @@ extension Network {
         }
     }
 
-    public func cancelRequest(request: URLRequest) {
+    public func cancel(for request: URLRequest) {
         session.getAllTasks { task in
             task
                 .filter { $0.state == .running }
