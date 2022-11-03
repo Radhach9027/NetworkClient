@@ -10,8 +10,6 @@ extension URLSessionConfiguration {
 
     static var backgroundConfig: (String) -> URLSessionConfiguration = { identifier in
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 30
         configuration.isDiscretionary = true
         configuration.sessionSendsLaunchEvents = true
         return configuration
