@@ -7,7 +7,7 @@ public struct NetworkError: Error, Codable {
     public let userMessage: String
 }
 
-private struct GlobalError: Codable {
+private struct InternalError: Codable {
     let title: String
     let code: Int
     let errorMessage: String
@@ -110,7 +110,7 @@ private extension NetworkError {
         static let fileName = "NetworkErrors"
         static let fileType = "json"
         static let nsErrorURLKey = "NSErrorFailingURLKey"
-        static let globalError = "Failed to convert GlobalError object while response status is not available in NetworkErrors.json"
+        static let InternalError = "Failed to convert InternalError object while response status is not available in NetworkErrors.json"
     }
 
     static var errorInCodableConversion: NetworkError {
@@ -126,7 +126,7 @@ private extension NetworkError {
         NetworkError(
             title: .json,
             code: .jsonFileError,
-            errorMessage: .some(Copy.globalError),
+            errorMessage: .some(Copy.InternalError),
             userMessage: .empty
         )
     }
@@ -140,7 +140,7 @@ private extension NetworkError {
         )
     }
     
-    static func makeNetworkErrorModel() throws -> [GlobalError]? {
+    static func makeNetworkErrorModel() throws -> [InternalError]? {
         guard let ressourceURL = Bundle.module.url(
             forResource: Copy.fileName,
             withExtension: Copy.fileType
@@ -150,7 +150,7 @@ private extension NetworkError {
 
         do {
             let jsonData = try Data(contentsOf: ressourceURL)
-            let model = try JSONDecoder().decode([GlobalError].self,
+            let model = try JSONDecoder().decode([InternalError].self,
                                                  from: jsonData)
             return model
         } catch {
