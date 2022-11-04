@@ -307,6 +307,12 @@ final class UploadMultipartService: ObservableObject {
 ```
 
 ### Finally, consuming the UploadMultipartService:
+
+* Declaring upload-multipart Service
+```
+    private lazy var service = UploadMultipartService(network: Network.defaultSession)
+```
+
 * Here we'r trying to upload an image to server on button click
 
 ```
