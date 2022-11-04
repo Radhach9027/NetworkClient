@@ -1,7 +1,7 @@
 # Network Client
 
 * It uses URLSession.
-* Built over SPM, add to your package dependency https://github.com/Radhach9027/NetworkClient
+* Built over SPM, add to your package dependency https://github.com/Radhach9027/NetworkClient and poin to **main** branch.
 
 
 ### Key Features:
