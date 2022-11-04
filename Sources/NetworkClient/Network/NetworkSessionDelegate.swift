@@ -49,29 +49,34 @@ final class NetworkSessionDelegate: NSObject,
             return
         }
 
+        // Set SSL policies for domain name check
+        let policies = NSMutableArray()
+        policies.add(SecPolicyCreateSSL(true, challenge.protectionSpace.host as CFString?))
+        SecTrustSetPolicies(serverTrust, policies)
+
         DispatchQueue.global().async {
-            SecTrustEvaluateAsyncWithError(serverTrust,
-                                           DispatchQueue.global()) {
+            SecTrustEvaluateAsyncWithError(
+                serverTrust,
+                DispatchQueue.global()
+            ) {
                 trust,
                     result,
                     error in
 
                 if result {
-                    var result: Bool? = false
-
+                    var result: Bool = false
                     switch pinning {
-                    case let .certificatePinning(certificate, hash):
+                    case let .certificatePinning(certificate):
                         result = pinning.cetificatePinning(
-                            certificate: certificate,
-                            hash: hash,
+                            localCertificate: certificate,
                             serverTrust: serverTrust
                         )
-                    case let .publicKeyPinning(hash):
-                        result = pinning.publicKeyPinning(
-                            serverTrust: serverTrust,
-                            hash: hash,
-                            trust: trust
-                        )
+                    case let .publicKeyPinning(hashes, domain):
+                            result = pinning.publicKeyPinning(
+                                serverTrust: serverTrust,
+                                hashes: hashes,
+                                domain: domain
+                            )
                     }
 
                     completionHandler(
