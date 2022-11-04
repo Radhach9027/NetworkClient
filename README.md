@@ -102,6 +102,8 @@ extension SecCertificate {
 * In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
 
 ```
+import NetworkClient
+
 enum RequestEndPoint {
     case fetch
 }
@@ -127,6 +129,35 @@ extension RequestEndPoint: NetworkRequestProtocol {
 
     var httpMethod: NetworkRequestMethod {
         .get
+    }
+}
+```
+
+### Making the request using the endpoint(RequestEndPoint):
+* In order to achieve this, we'r creating a RequestService class and using all three exposed request types from the NetworkClient.
+
+```
+import Combine
+import Foundation
+import NetworkClient
+
+final class RequestService: ObservableObject {
+    private var network: NetworkProtocol
+
+    init(network: NetworkProtocol) {
+        self.network = network
+    }
+
+    func request(endpoint: RequestEndPoint, receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
+         network.request(for: endpoint, receive: receive)
+    }
+    
+    func request<T>(endpoint: RequestEndPoint, codable: T.Type, receive: DispatchQueue) -> AnyPublisher<T, NetworkError> where T: Decodable {
+         network.request(for: endpoint, codable: T.self, receive: receive)
+    }
+    
+    func serialRequests(endpoints: [RequestEndPoint], receive: DispatchQueue) -> PassthroughSubject<Data?, NetworkError> {
+         network.serialRequests(for: endpoints, receive: receive)
     }
 }
 ```
