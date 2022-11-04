@@ -90,6 +90,34 @@ extension SecCertificate {
     }
 }
 
+# Creating a sample request: In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
+enum RequestEndPoint {
+    case fetch
+}
+
+extension RequestEndPoint: NetworkRequestProtocol {
+    var apiKey: String? {
+        "l7eIYhKJYYmpXqbq8tSPHZC5qG1DFvcBCrsyOvhJ"
+    }
+
+    var baseURL: String {
+        "https://api.nasa.gov"
+    }
+
+    var urlPath: String {
+        "/planetary/apod"
+    }
+
+    var urlComponents: URLComponents? {
+        var components = URLComponents(string: baseURL + urlPath)
+        components?.queryItems = [URLQueryItem(name: "api_key", value: apiKey)]
+        return components
+    }
+
+    var httpMethod: NetworkRequestMethod {
+        .get
+    }
+}
 
 ### Note: Open for Constructive feedback.
 
