@@ -54,7 +54,7 @@ extension NetworkError {
             do {
                 let errorModel = try makeNetworkErrorModel(codable: HTTPError.self)
                 guard let model = errorModel?.first(where: {$0.code == response.statusCode}) else {
-                    return .errorInGloabalErrorsConversion
+                    return .errorInHTTPErrorsConversion
                 }
                 return .init(
                     title: .some(model.title),
@@ -110,7 +110,8 @@ private extension NetworkError {
         static let fileName = "HTTPErrors"
         static let fileType = "json"
         static let nsErrorURLKey = "NSErrorFailingURLKey"
-        static let HTTPError = "Failed to convert HTTPErrors object while response status is not available in NetworkErrors.json"
+        static let HTTPError = "Failed to convert HTTPErrors object while response status is not available in HTTPErrors.json"
+        static let HTTPErrorNotFound = "Failed to load HTTPErrors.json file from resource folder"
     }
 
     static var errorInCodableConversion: NetworkError {
@@ -122,11 +123,20 @@ private extension NetworkError {
         )
     }
     
-    static var errorInGloabalErrorsConversion: NetworkError {
+    static var errorInHTTPErrorsConversion: NetworkError {
         NetworkError(
             title: .json,
             code: .jsonFileError,
             errorMessage: .some(Copy.HTTPError),
+            userMessage: .empty
+        )
+    }
+    
+    static var httpErrorNotFound: NetworkError {
+        NetworkError(
+            title: .json,
+            code: .jsonFileError,
+            errorMessage: .some(Copy.HTTPErrorNotFound),
             userMessage: .empty
         )
     }
@@ -145,7 +155,7 @@ private extension NetworkError {
             forResource: Copy.fileName,
             withExtension: Copy.fileType
         ) else {
-            return nil
+            throw Self.httpErrorNotFound
         }
 
         do {
