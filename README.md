@@ -3,7 +3,7 @@
 * It uses URLSession.
 
 
-# Key Features:
+### Key Features:
 
 * Request, bulk requests(serial, concurrent)
 
@@ -14,10 +14,10 @@
 * Sslpinning (certificate, pinning)
 
 
-# Network (default):
+### Network (default):
    let session = Network(config: .default())
    
-# Network (default with sslpinning):
+### Network (default with sslpinning):
    var defaultSession: Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
@@ -30,7 +30,7 @@
         }
    }
 
-# Network (background):
+### Network (background):
    var session: Network {
          .init(
                 config: .background(identifer: Bundle.identifier),
@@ -39,7 +39,7 @@
 
    }
    
- # Network (background with sslpinning):
+ ### Network (background with sslpinning):
    var session: Network {
          .init(
                 config: .background(identifer: Bundle.identifier),
@@ -49,7 +49,7 @@
 
    }
 
-# SSLPinning from host app:
+### SSLPinning from host app:
 * It would be nice to create an SecCertificate extension and use it.
 
 enum SecCertificateError<S, F> {
@@ -90,10 +90,9 @@ extension SecCertificate {
     }
 }
 
-# Creating a sample request:
+### Creating a sample request:
 ** In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
 
-*
 enum RequestEndPoint {
     case fetch
 }
@@ -121,7 +120,4 @@ extension RequestEndPoint: NetworkRequestProtocol {
         .get
     }
 }
-*
-
-### Note: Open for Constructive feedback.
 
