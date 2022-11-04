@@ -351,9 +351,6 @@ final class UploadMultipartService: ObservableObject {
 import Foundation
 import NetworkClient
 
-import Foundation
-import NetworkClient
-
 enum DownloadEndpoint {
     case image
 }
@@ -432,7 +429,7 @@ final class DownloadService: ObservableObject {
 
  
 ```
- import UIKit
+import UIKit
  
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
