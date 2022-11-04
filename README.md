@@ -314,13 +314,12 @@ final class UploadMultipartService: ObservableObject {
                     case .finished:
                         debugPrint("uploadMultipart finished")
                     case let .failure(error):
-                        self?.present(withTitle: error.title.value, message: error.errorMessage.value)
+                        debugPrint(error.errorMessage.value)
                     }
                 } receiveValue: { [weak self] response in
                     switch response {
                     case let .progress(percentage):
                         debugPrint("uploadMultipart percentage = \(percentage)")
-                        self?.progressView.progress = percentage
                     case let .response(data):
                         debugPrint("uploadMultipart success = \(data)")
                     }
