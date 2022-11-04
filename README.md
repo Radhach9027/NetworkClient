@@ -16,7 +16,7 @@
 
 ### Create required extensions as below in your app, in-order to make your job easy:
 
-### Network+Extensions from host app:
+* Network+Extensions from host app:
 
 ```
 import Foundation
@@ -54,7 +54,7 @@ extension Network {
 ```
 
 
-### SSLPinning from host app:
+* SSLPinning from host app:
 
 ```
 enum SecCertificateError<S, F> {
