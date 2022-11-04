@@ -185,8 +185,8 @@ final class RequestService: ObservableObject {
             }
             .store(in: &cancellable)
     }
-    ```
-  * Consuming codable request.
+
+* Consuming codable request.
 
  ```
     func codableRequest() {
@@ -204,7 +204,6 @@ final class RequestService: ObservableObject {
             }
             .store(in: &cancellable)
     }
-    ```
 
   * Consuming serial requests.
   
@@ -228,5 +227,3 @@ final class RequestService: ObservableObject {
             }
             .store(in: &cancellable)
     }
-    ```
-
