@@ -410,7 +410,13 @@ final class DownloadService: ObservableObject {
 ```
 
 ### Finally, consuming the DownloadService:
-* Declaring Request Service
+* Declaring foreground download Service
+
+```
+    private lazy var service = UploadMultipartService(network: Network.defaultSession)
+```
+
+* Declaring background download Service
 
 ```
     private lazy var service = DownloadService(
