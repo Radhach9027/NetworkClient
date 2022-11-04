@@ -18,8 +18,8 @@
    let session = Network(config: .default())
    
 ### Network (default with sslpinning):
-   ex. 
-   var defaultSession: Network {
+```
+var defaultSession: Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
             return Network(
@@ -30,6 +30,8 @@
             return Network(config: .default())
         }
    }
+   
+```
 
 ### Network (background):
    ex.
