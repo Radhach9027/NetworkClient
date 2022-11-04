@@ -475,5 +475,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   ```
 
+### Development in-progress:
+ * Conquerent requests.
+ * Bulk uploads.
+ * Bulk downloads.
+ * Still working on the test cases part. will be covering unit & integration testing.
+ * Need to address comments for required code snippets.
+ * Need to create a client side server for real time issues.
+ 
 
 ### Open to contributors, Please follow Feature Branching Strategy and raise PR's.
