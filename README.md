@@ -185,9 +185,11 @@ final class RequestService: ObservableObject {
             }
             .store(in: &cancellable)
     }
+```
 
 * Consuming codable request.
 
+ ```
     func codableRequest() {
         service.request(endpoint: .fetch, codable: NasaAstronomy.self, receive: .main)
             .receive(on: DispatchQueue.main)
@@ -203,9 +205,11 @@ final class RequestService: ObservableObject {
             }
             .store(in: &cancellable)
     }
+```
 
   * Consuming serial requests.
   
+ ```
   func serialRequests() {
         service.serialRequests(endpoints: [.fetch, .fetch, .fetch], receive: .main)
             .receive(on: DispatchQueue.main)
