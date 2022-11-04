@@ -298,7 +298,7 @@ final class UploadMultipartService: ObservableObject {
 ```
 
 ### Finally, consuming the UploadMultipartService:
-* Here we'r trying to upload an image on button click
+* Here we'r trying to upload an image to server on button click
 
 ```
     @IBAction func uploadMultipart(sender: UIButton) {
