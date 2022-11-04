@@ -103,7 +103,7 @@ extension Network {
  
  
 ### Creating a sample request:
-* In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
+* In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
 
 ```
 import NetworkClient
@@ -241,7 +241,7 @@ final class RequestService: ObservableObject {
 ```
 
 ### Creating a sample multi-part upload request:
-* In order to achieve this we need to create an endpoint and conform to NetworkMultipartUploadRequestProtocol to it.
+* In order to achieve this, we need to create an endpoint and conform to NetworkMultipartUploadRequestProtocol to it.
 
 ```
 import Foundation
@@ -345,7 +345,7 @@ final class UploadMultipartService: ObservableObject {
   ```
 
 ### Creating a sample download request:
-* In order to achieve this we need to create an endpoint and conform to NetworkDownloadRequestProtocol to it.
+* In order to achieve this, we need to create an endpoint and conform to NetworkDownloadRequestProtocol to it.
 
 ```
 import Foundation
@@ -477,3 +477,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .store(in: &cancellable)
     }
   ```
+
+
+### Open to contributors, Please follow Feature Branching Strategy and raise PR's.
