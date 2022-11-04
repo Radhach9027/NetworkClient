@@ -1,6 +1,7 @@
 # Network Client
 
 * It uses URLSession.
+* Built over SPM, add to your package dependency https://github.com/Radhach9027/NetworkClient
 
 
 ### Key Features:
