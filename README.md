@@ -161,3 +161,72 @@ final class RequestService: ObservableObject {
     }
 }
 ```
+
+### Finally, consuming the RequestService:
+
+* Consuming data request.
+
+ ```
+    func dataRequest() {
+        service.request(endpoint: .fetch, receive: .main)
+            .receive(on: DispatchQueue.main)
+            .decode(type: NasaAstronomy.self, decoder: JSONDecoder())
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    debugPrint("Request finished")
+                case let .failure(error):
+                if let error = error as? NetworkError {
+                     debugPrint(error.errorMessage.value)
+                 }
+               }
+            } receiveValue: { [weak self] model in
+                debugPrint(model)
+            }
+            .store(in: &cancellable)
+    }
+    ```
+  * Consuming codable request.
+
+ ```
+    func codableRequest() {
+        service.request(endpoint: .fetch, codable: NasaAstronomy.self, receive: .main)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    debugPrint("Request finished")
+                case let .failure(error):
+                     debugPrint(error.errorMessage.value)
+                }
+            } receiveValue: { [weak self] model in
+                debugPrint(model)
+            }
+            .store(in: &cancellable)
+    }
+    ```
+
+  * Consuming serial requests.
+  
+   ```
+  func serialRequests() {
+        service.serialRequests(endpoints: [.fetch, .fetch, .fetch], receive: .main)
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .decode(type: NasaAstronomy.self, decoder: JSONDecoder())
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    debugPrint("serialRequests finished")
+                case let .failure(error):
+                  if let error = error as? NetworkError {
+                     debugPrint(error.errorMessage.value)
+                  }
+                }
+            } receiveValue: { [weak self] model in
+                     debugPrint(model)
+            }
+            .store(in: &cancellable)
+    }
+    ```
+
