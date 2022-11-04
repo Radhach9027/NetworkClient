@@ -93,6 +93,7 @@ extension SecCertificate {
 # Creating a sample request:
 ** In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
 
+*
 enum RequestEndPoint {
     case fetch
 }
@@ -120,6 +121,7 @@ extension RequestEndPoint: NetworkRequestProtocol {
         .get
     }
 }
+*
 
 ### Note: Open for Constructive feedback.
 
