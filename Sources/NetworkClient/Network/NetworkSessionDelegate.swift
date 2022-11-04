@@ -54,44 +54,11 @@ final class NetworkSessionDelegate: NSObject,
         policies.add(SecPolicyCreateSSL(true, challenge.protectionSpace.host as CFString?))
         SecTrustSetPolicies(serverTrust, policies)
 
-        DispatchQueue.global().async {
-            SecTrustEvaluateAsyncWithError(
-                serverTrust,
-                DispatchQueue.global()
-            ) {
-                trust,
-                    result,
-                    error in
-
-                if result {
-                    var result: Bool = false
-                    switch pinning {
-                    case let .certificatePinning(certificate):
-                        result = pinning.cetificatePinning(
-                            localCertificate: certificate,
-                            serverTrust: serverTrust
-                        )
-                    case let .publicKeyPinning(hashes, domain):
-                            result = pinning.publicKeyPinning(
-                                serverTrust: serverTrust,
-                                hashes: hashes,
-                                domain: domain
-                            )
-                    }
-
-                    completionHandler(
-                        result == true
-                            ? .useCredential
-                            : .cancelAuthenticationChallenge,
-                        result == true
-                            ? URLCredential(trust: serverTrust)
-                            : nil
-                    )
-                } else {
-                    debugPrint("Trust failed: \(error!.localizedDescription)") // Log these errors to metrics
-                }
-            }
-        }
+        authenticationChallenge(
+            pinning: pinning,
+            serverTrust: serverTrust,
+            completionHandler: completionHandler
+        )
     }
 
     // MARK: URLSessionDownload delegates
@@ -254,6 +221,51 @@ private extension NetworkSessionDelegate {
                 errorMessage: .some(fileError.localizedDescription),
                 userMessage: Constants.downloadToLocationMessage
             )))
+        }
+    }
+
+    func authenticationChallenge(
+        pinning: SSLPinning,
+        serverTrust: SecTrust,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void
+    ) {
+        DispatchQueue.global().async {
+            SecTrustEvaluateAsyncWithError(
+                serverTrust,
+                DispatchQueue.global()
+            ) {
+                _,
+                    result,
+                    error in
+
+                if result {
+                    var result: Bool = false
+                    switch pinning {
+                    case let .certificatePinning(certificate):
+                        result = pinning.cetificatePinning(
+                            localCertificate: certificate,
+                            serverTrust: serverTrust
+                        )
+                    case let .publicKeyPinning(hashes, domain):
+                        result = pinning.publicKeyPinning(
+                            serverTrust: serverTrust,
+                            hashes: hashes,
+                            domain: domain
+                        )
+                    }
+
+                    completionHandler(
+                        result == true
+                            ? .useCredential
+                            : .cancelAuthenticationChallenge,
+                        result == true
+                            ? URLCredential(trust: serverTrust)
+                            : nil
+                    )
+                } else {
+                    debugPrint("Trust failed: \(error!.localizedDescription)") // Log these errors to metrics
+                }
+            }
         }
     }
 }
