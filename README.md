@@ -11,7 +11,7 @@
 
 * Download with progress
 
-* Sslpinning (certificate, pinning)
+* Sslpinning (certificate, publicKey)
 
 
 ### Create required extensions as below in your app, in-order to make your job easy:
