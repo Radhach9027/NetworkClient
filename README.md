@@ -16,7 +16,7 @@
 
 ### Create required extensions as below in your app, in-order to make your job easy:
 
-* SSLPinning from host app:
+* SecCertificate+Extensions from host app: (Fetching SecCertificate from your bundle)
 
 ```
 enum SecCertificateError<S, F> {
@@ -58,7 +58,7 @@ extension SecCertificate {
 }
 ```
 
-* Network+Extensions from host app:
+* Network+Extensions from host app: (SSLPinning is optional, make changes accordingly when you don't pin certificates)
 
 ```
 import Foundation
@@ -91,6 +91,11 @@ extension Network {
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         }
+    }
+    
+    ### Without sslpinning (default):
+    class var defaultSession: Network {
+         return Network(config: .default())
     }
 }
 ```
