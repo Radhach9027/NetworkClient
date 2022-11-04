@@ -230,3 +230,103 @@ final class RequestService: ObservableObject {
             .store(in: &cancellable)
     }
 ```
+
+### Creating a sample multi-part upload request:
+* In order to achieve this we need to create an endpoint and conform NetworkMultipartUploadRequestProtocol to it.
+
+```
+import Foundation
+import NetworkClient
+
+enum UploadMultipartEndPoint {
+    case image(name: String, data: Data, mimeType: String)
+}
+
+extension UploadMultipartEndPoint: NetworkMultipartUploadRequestProtocol {
+    var baseURL: String {
+        "your base endpoint"
+    }
+
+    var urlPath: String {
+        "/uploadPicture"
+    }
+
+    var httpMethod: NetworkRequestMethod {
+        .post
+    }
+
+    var boundary: String {
+        UUID().uuidString
+    }
+
+    var urlComponents: URLComponents? {
+        return URLComponents(string: baseURL + urlPath)
+    }
+
+    var httpHeaderFields: NetworkHTTPHeaderField? {
+        .headerFields(fields: [.contentType: .multipartFormData(boundary: boundary)])
+    }
+
+    var multipartFormDataType: MultipartFormDataType {
+        switch self {
+        case let .image(name, data, mimeType):
+            return .data(name: name, data: data, mimeType: mimeType)
+        }
+    }
+}
+```
+
+### Making the upload request using the endpoint(UploadMultipartEndPoint):
+* In order to achieve this, we'r creating a UploadMultipartService class and using the upload(endpoint: UploadMultipartEndPoint) func from the NetworkClient.
+
+```
+import Combine
+import Foundation
+import NetworkClient
+
+final class UploadMultipartService: ObservableObject {
+    private var network: NetworkProtocol
+
+    init(network: NetworkProtocol) {
+        self.network = network
+    }
+
+    func upload(endpoint: UploadMultipartEndPoint, receive: DispatchQueue) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
+         network.uploadMultipart(with: endpoint, receive: .main)
+    }
+}
+```
+
+### Finally, consuming the UploadMultipartService:
+* Here we'r trying to upload an image on button click
+
+```
+    @IBAction func uploadMultipart(sender: UIButton) {
+        if let data = image.image?.pngData() {
+            service.upload(endpoint: .image(
+                name: "profilePicture",
+                data: data,
+                mimeType: "img/png"
+            ), receive: .main)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] result in
+                    switch result {
+                    case .finished:
+                        debugPrint("uploadMultipart finished")
+                    case let .failure(error):
+                        self?.present(withTitle: error.title.value, message: error.errorMessage.value)
+                    }
+                } receiveValue: { [weak self] response in
+                    switch response {
+                    case let .progress(percentage):
+                        debugPrint("uploadMultipart percentage = \(percentage)")
+                        self?.progressView.progress = percentage
+                    case let .response(data):
+                        debugPrint("uploadMultipart success = \(data)")
+                    }
+                }
+                .store(in: &cancellable)
+        }
+    }
+  ```
+
