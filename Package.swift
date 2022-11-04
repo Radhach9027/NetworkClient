@@ -18,7 +18,7 @@ let package = Package(
         .target(
             name: "NetworkClient",
             dependencies: [.product(name: "Reachability", package: "Reachability.swift")],
-            resources: [.process("Resources/NetworkErrors.json")]),
+            resources: [.process("Resources/HTTPErrors.json")]),
         .testTarget(
             name: "NetworkClientTests",
             dependencies: ["NetworkClient"]),

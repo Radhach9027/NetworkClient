@@ -7,7 +7,7 @@ public struct NetworkError: Error, Codable {
     public let userMessage: String
 }
 
-private struct InternalError: Codable {
+private struct HTTPError: Codable {
     let title: String
     let code: Int
     let errorMessage: String
@@ -52,7 +52,7 @@ extension NetworkError {
             return nil
         default:
             do {
-                let errorModel = try makeNetworkErrorModel()
+                let errorModel = try makeNetworkErrorModel(codable: HTTPError.self)
                 guard let model = errorModel?.first(where: {$0.code == response.statusCode}) else {
                     return .errorInGloabalErrorsConversion
                 }
@@ -107,10 +107,10 @@ extension NetworkError {
 
 private extension NetworkError {
     enum Copy {
-        static let fileName = "NetworkErrors"
+        static let fileName = "HTTPErrors"
         static let fileType = "json"
         static let nsErrorURLKey = "NSErrorFailingURLKey"
-        static let InternalError = "Failed to convert InternalError object while response status is not available in NetworkErrors.json"
+        static let HTTPError = "Failed to convert HTTPErrors object while response status is not available in NetworkErrors.json"
     }
 
     static var errorInCodableConversion: NetworkError {
@@ -126,7 +126,7 @@ private extension NetworkError {
         NetworkError(
             title: .json,
             code: .jsonFileError,
-            errorMessage: .some(Copy.InternalError),
+            errorMessage: .some(Copy.HTTPError),
             userMessage: .empty
         )
     }
@@ -140,7 +140,7 @@ private extension NetworkError {
         )
     }
     
-    static func makeNetworkErrorModel() throws -> [InternalError]? {
+    static func makeNetworkErrorModel<T>(codable: T.Type) throws -> [T]? where T: Decodable {
         guard let ressourceURL = Bundle.module.url(
             forResource: Copy.fileName,
             withExtension: Copy.fileType
@@ -150,7 +150,7 @@ private extension NetworkError {
 
         do {
             let jsonData = try Data(contentsOf: ressourceURL)
-            let model = try JSONDecoder().decode([InternalError].self,
+            let model = try JSONDecoder().decode([T].self,
                                                  from: jsonData)
             return model
         } catch {
