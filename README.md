@@ -232,7 +232,7 @@ final class RequestService: ObservableObject {
 ```
 
 ### Creating a sample multi-part upload request:
-* In order to achieve this we need to create an endpoint and conform NetworkMultipartUploadRequestProtocol to it.
+* In order to achieve this we need to create an endpoint and conform to NetworkMultipartUploadRequestProtocol to it.
 
 ```
 import Foundation
@@ -329,3 +329,95 @@ final class UploadMultipartService: ObservableObject {
     }
   ```
 
+### Creating a sample download request:
+* In order to achieve this we need to create an endpoint and conform to NetworkDownloadRequestProtocol to it.
+
+```
+import Foundation
+import NetworkClient
+
+import Foundation
+import NetworkClient
+
+enum DownloadEndpoint {
+    case image
+}
+
+extension DownloadEndpoint: NetworkDownloadRequestProtocol {
+    var saveDownloadedUrlToLocation: URL? {
+        nil // save to default
+    }
+
+    var urlPath: String {
+        switch self {
+        case .image:
+            return "/jpeg/PIA08506.jpg"
+        }
+    }
+
+    var httpMethod: NetworkRequestMethod {
+        switch self {
+        case .image:
+            return .get
+        }
+    }
+
+    var baseURL: String {
+        switch self {
+        case .image:
+            return "https://photojournal.jpl.nasa.gov"
+        }
+    }
+
+    var urlComponents: URLComponents? {
+        return URLComponents(string: baseURL + urlPath)
+    }
+}
+```
+
+### Making the download request using the endpoint(DownloadEndpoint):
+* In order to achieve this, we'r creating a DownloadService class and using the download(endpoint: DownloadEndpoint func from the NetworkClient.
+
+```
+import Combine
+import Foundation
+import NetworkClient
+
+final class DownloadService: ObservableObject {
+    private var network: NetworkProtocol
+
+    init(network: NetworkProtocol) {
+        self.network = network
+    }
+
+    func download(endpoint: DownloadEndpoint, receive: DispatchQueue) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
+         network.download(for: endpoint, receive: receive)
+    }
+}
+```
+
+### Finally, consuming the DownloadService:
+* Here we'r trying to download an image from server
+
+```
+    func download() {
+        service.download(endpoint: .image, receive: .main)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    debugPrint("ForegroundDownload finished")
+                case let .failure(error):
+                    debugPrint(error.errorMessage.value)
+                }
+            } receiveValue: { [weak self] response in
+                switch response {
+                case let .progress(percentage):
+                     debugPrint("download percentage = \(percentage)")
+                case let .response(url):
+                     debugPrint(url)
+                }
+            }
+            .store(in: &cancellable)
+    }
+  ```
