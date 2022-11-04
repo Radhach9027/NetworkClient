@@ -15,7 +15,9 @@
 
 
 ### Network (default):
+```
    let session = Network(config: .default())
+```
    
 ### Network (default with sslpinning):
 ```
@@ -30,21 +32,21 @@ var defaultSession: Network {
             return Network(config: .default())
         }
    }
-   
 ```
 
 ### Network (background):
-   ex.
-   var session: Network {
+```
+var session: Network {
          .init(
                 config: .background(identifer: Bundle.identifier),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
 
    }
+  ```
    
  ### Network (background with sslpinning):
-   ex.
+```
    var session: Network {
          .init(
                 config: .background(identifer: Bundle.identifier),
@@ -53,11 +55,11 @@ var defaultSession: Network {
             )
 
    }
-
+  ```
 ### SSLPinning from host app:
-**It would be nice to create an SecCertificate extension and use it
+* It would be nice to create an SecCertificate extension and use it
 
-ex.
+```
 enum SecCertificateError<S, F> {
     case success(S)
     case failure(F)
@@ -95,10 +97,11 @@ extension SecCertificate {
         }
     }
 }
-
+```
 ### Creating a sample request:
-**In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
+* In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
 
+```
 enum RequestEndPoint {
     case fetch
 }
@@ -126,4 +129,4 @@ extension RequestEndPoint: NetworkRequestProtocol {
         .get
     }
 }
-
+```
