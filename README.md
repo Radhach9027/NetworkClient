@@ -99,53 +99,6 @@ extension Network {
     }
 }
 ```
-
-
-### Network (default):
-```
-   private lazy var service = RequestService(network: Network.defaultSession)
-```
-
-### Network (use this when we have downloads happening in the background):
-```
-    private lazy var service = DownloadService(
-        network: Network.backgroundSession(urlSessionDidFinishEvents: { _ in
-            DispatchQueue.main.async {
-                if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-                   let completionHandler = appDelegate.backgroundSessionCompletionHandler {
-                    appDelegate.backgroundSessionCompletionHandler = nil
-                    completionHandler()
-                }
-            }
-        })
-    )
- ```
- 
- * In order to know the events for BackgroundURLSession we need to confirm the below code snippet to the host app AppDelegate.
-
- 
-```
- import UIKit
- 
-@main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    var backgroundSessionCompletionHandler: (() -> Void)?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        return true
-    }
-
-    func application(
-        _: UIApplication,
-        handleEventsForBackgroundURLSession identifier: String,
-        completionHandler: @escaping () -> Void
-    ) {
-        if identifier == Bundle.identifier {
-            backgroundSessionCompletionHandler = completionHandler
-        }
-    }
-}
- ```
  
  
  
@@ -214,6 +167,11 @@ final class RequestService: ObservableObject {
 ```
 
 ### Finally, consuming the RequestService:
+
+* Declaring Request Service
+```
+   private lazy var service = RequestService(network: Network.defaultSession)
+```
 
 * Consuming data request.
 
@@ -448,8 +406,49 @@ final class DownloadService: ObservableObject {
 ```
 
 ### Finally, consuming the DownloadService:
-* Here we'r trying to download an image from server
+* Declaring Request Service
 
+```
+    private lazy var service = DownloadService(
+        network: Network.backgroundSession(urlSessionDidFinishEvents: { _ in
+            DispatchQueue.main.async {
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+                   let completionHandler = appDelegate.backgroundSessionCompletionHandler {
+                    appDelegate.backgroundSessionCompletionHandler = nil
+                    completionHandler()
+                }
+            }
+        })
+    )
+ ```
+ 
+ * In order to know the events for BackgroundURLSession we need to confirm the below code snippet to the host app AppDelegate.
+
+ 
+```
+ import UIKit
+ 
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var backgroundSessionCompletionHandler: (() -> Void)?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        return true
+    }
+
+    func application(
+        _: UIApplication,
+        handleEventsForBackgroundURLSession identifier: String,
+        completionHandler: @escaping () -> Void
+    ) {
+        if identifier == Bundle.identifier {
+            backgroundSessionCompletionHandler = completionHandler
+        }
+    }
+}
+ ```
+ 
+ * Here we'r trying to download an image from server
 ```
     func download() {
         service.download(endpoint: .image, receive: .main)
