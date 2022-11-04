@@ -14,14 +14,16 @@
 * Sslpinning (certificate, pinning)
 
 
-### Network (default):
+### Create required extensions as below in your app, in-order to make your job easy:
+
+### Network+Extensions from host app:
+
 ```
-   let session = Network(config: .default())
-```
-   
-### Network (default with sslpinning):
-```
-var defaultSession: Network {
+import Foundation
+import NetworkClient
+
+extension Network {
+    class var defaultSession: Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
             return Network(
@@ -31,33 +33,28 @@ var defaultSession: Network {
         case .failure:
             return Network(config: .default())
         }
-   }
-```
+    }
 
-### Network (background):
-```
-var session: Network {
-         .init(
-                config: .background(identifer: Bundle.identifier),
-                urlSessionDidFinishEvents: urlSessionDidFinishEvents
-            )
-
-   }
-  ```
-   
- ### Network (background with sslpinning):
-```
-   var session: Network {
-         .init(
+    class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
+        switch SecCertificate.loadFromBundle() {
+        case let .success(certificate):
+            return Network(
                 config: .background(identifer: Bundle.identifier),
                 pinning: .certificatePinning(certificate: certificate),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
+        case .failure:
+            return Network(
+                config: .background(identifer: Bundle.identifier),
+                urlSessionDidFinishEvents: urlSessionDidFinishEvents
+            )
+        }
+    }
+}
+```
 
-   }
-  ```
+
 ### SSLPinning from host app:
-* It would be nice to create an SecCertificate extension and use it
 
 ```
 enum SecCertificateError<S, F> {
@@ -98,6 +95,54 @@ extension SecCertificate {
     }
 }
 ```
+
+
+### Network (default):
+```
+   private lazy var service = RequestService(network: Network.defaultSession)
+```
+
+### Network (use for downloads when app pushes to background):
+```
+    private lazy var service = DownloadService(
+        network: Network.backgroundSession(urlSessionDidFinishEvents: { _ in
+            DispatchQueue.main.async {
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+                   let completionHandler = appDelegate.backgroundSessionCompletionHandler {
+                    appDelegate.backgroundSessionCompletionHandler = nil
+                    completionHandler()
+                }
+            }
+        })
+    )
+ ```
+ 
+ * In order to know the events for BackgroundURLSession we need to confirm the below code snippet to the host app AppDelegate.
+ 
+ 
+```
+ import UIKit
+ 
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var backgroundSessionCompletionHandler: (() -> Void)?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        return true
+    }
+
+    func application(
+        _: UIApplication,
+        handleEventsForBackgroundURLSession identifier: String,
+        completionHandler: @escaping () -> Void
+    ) {
+        if identifier == Bundle.identifier {
+            backgroundSessionCompletionHandler = completionHandler
+        }
+    }
+}
+ ```
+ 
 ### Creating a sample request:
 * In order to achieve this we need to create an endpoint and conform NetworkRequestProtocol to it.
 
