@@ -141,4 +141,5 @@ extension Network {
 }
 
 // MARK: Request, Upload, Download, URLSessionTask
+
 extension Network: NetworkProtocol {}

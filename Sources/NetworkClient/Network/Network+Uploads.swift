@@ -2,8 +2,9 @@ import Combine
 import Foundation
 
 // MARK: Upload Tasks
-extension Network {
-    public func upload(
+
+public extension Network {
+    func upload(
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
@@ -31,7 +32,7 @@ extension Network {
         }
     }
 
-    public func uploadMultipart(
+    func uploadMultipart(
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {

@@ -2,8 +2,9 @@ import Combine
 import Foundation
 
 // MARK: Download Tasks
-extension Network {
-    public func download(
+
+public extension Network {
+    func download(
         for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {

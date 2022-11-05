@@ -2,13 +2,14 @@ import Combine
 import Foundation
 
 // MARK: Network Requests
-extension Network {
-    public func serialRequests(for requests: [NetworkRequestProtocol], receive: DispatchQueue) -> PassthroughSubject<Data?, NetworkError> {
+
+public extension Network {
+    func serialRequests(for requests: [NetworkRequestProtocol], receive: DispatchQueue) -> PassthroughSubject<Data?, NetworkError> {
         let subject: PassthroughSubject<Data?, NetworkError> = .init()
         let group = DispatchGroup()
         let queue = DispatchQueue(label: "SerialRequests")
         let semaphore = DispatchSemaphore(value: 0)
-        
+
         queue.async { [weak self] in
             guard let self = self else {
                 return
@@ -20,10 +21,10 @@ extension Network {
                     self.makeRequest(request: request, receive: receive)
                         .sink(receiveCompletion: { result in
                             switch result {
-                                case let .failure(error):
-                                    subject.send(completion: .failure(error))
-                                default:
-                                    break
+                            case let .failure(error):
+                                subject.send(completion: .failure(error))
+                            default:
+                                break
                             }
                         }, receiveValue: {
                             semaphore.signal()
@@ -37,14 +38,14 @@ extension Network {
                 }
             }
         }
-        
+
         group.notify(queue: queue) {
             subject.send(completion: .finished)
         }
         return subject
     }
-    
-    public func request(
+
+    func request(
         for request: NetworkRequestProtocol,
         receive: DispatchQueue
     ) -> AnyPublisher<Data, NetworkError> {
@@ -56,8 +57,8 @@ extension Network {
                 .eraseToAnyPublisher()
         }
     }
-    
-    public func request<T>(
+
+    func request<T>(
         for request: NetworkRequestProtocol,
         codable: T.Type,
         receive: DispatchQueue
@@ -80,7 +81,7 @@ extension Network {
                 .eraseToAnyPublisher()
         }
     }
-    
+
     private func makeRequest(request: URLRequest, receive: DispatchQueue) -> AnyPublisher<Data, NetworkError> {
         session.dataTaskPublisher(for: request)
             .receive(on: receive)
@@ -88,7 +89,7 @@ extension Network {
                 guard let error = NetworkError.validateHTTPError(urlResponse: response as? HTTPURLResponse) else {
                     return data
                 }
-                
+
                 if let logger = self?.logger {
                     logger.logRequest(
                         url: request.url!,
@@ -97,14 +98,14 @@ extension Network {
                         privacy: .encrypt
                     )
                 }
-                
+
                 throw error
             }
             .mapError { [weak self] error in
                 guard let error = error as? NetworkError else {
                     return NetworkError.convertErrorToNetworkError(error: error as NSError)
                 }
-                
+
                 if let logger = self?.logger {
                     logger.logRequest(
                         url: request.url!,
@@ -113,49 +114,9 @@ extension Network {
                         privacy: .encrypt
                     )
                 }
-                
+
                 return error
             }
             .eraseToAnyPublisher()
-    }
-}
-
-// MARK: Cancel Tasks
-extension Network {
-    public func suspend(for request: URLRequest) {
-        session.getAllTasks { task in
-            task
-                .filter { $0.state == .running }
-                .filter { $0.originalRequest == request }.first?
-                .suspend()
-        }
-    }
-    
-    public func resume(for request: URLRequest) {
-        session.getAllTasks { task in
-            task
-                .filter { $0.state == .suspended }
-                .filter { $0.originalRequest == request }.first?
-                .resume()
-        }
-    }
-    
-    public func cancel(for request: URLRequest) {
-        session.getAllTasks { task in
-            task
-                .filter { $0.state == .running }
-                .filter { $0.originalRequest == request }.first?
-                .cancel()
-        }
-    }
-    
-    public func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void) {
-        session.getAllTasks(completionHandler: completionHandler)
-    }
-    
-    public func cancelAllRequests() {
-        session.flush {
-            debugPrint("Removed all requests from NetworkClient")
-        }
     }
 }
