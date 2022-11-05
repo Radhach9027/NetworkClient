@@ -3,8 +3,6 @@ import Foundation
 extension URLSessionConfiguration {
     static var defaultConfig: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 30
         return configuration
     }
 

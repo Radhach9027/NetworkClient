@@ -21,10 +21,12 @@ extension LoggerCategory {
 }
 
 public protocol NetworkLoggerProtocol {
-    func logRequest(url: URL,
-                    error: NetworkError,
-                    type: OSLogType,
-                    privacy: LoggerPrivacy)
+    func logRequest(
+        url: URL,
+        error: NetworkError,
+        type: OSLogType,
+        privacy: LoggerPrivacy
+    )
 }
 
 public struct NetworkLogger: NetworkLoggerProtocol {
@@ -32,8 +34,10 @@ public struct NetworkLogger: NetworkLoggerProtocol {
     private var category: LoggerCategory
     private let logger: Logger
 
-    public init(identifier: String,
-                category: LoggerCategory) {
+    public init(
+        identifier: String,
+        category: LoggerCategory
+    ) {
         self.identifier = identifier
         self.category = category
         logger = Logger(

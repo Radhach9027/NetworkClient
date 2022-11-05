@@ -27,13 +27,6 @@ extension SSLPinning {
         hashes: [String],
         domain: String?
     ) -> Bool {
-        // Set SSL policies for domain name check, if needed
-        if let domain = domain {
-            let policies = NSMutableArray()
-            policies.add(SecPolicyCreateSSL(true, domain as CFString))
-            SecTrustSetPolicies(serverTrust, policies)
-        }
-
         // For each certificate in the valid trust:
         for index in 0 ..< SecTrustGetCertificateCount(serverTrust) {
             // Get the public key data for the certificate at the current index of the loop.
@@ -50,8 +43,10 @@ extension SSLPinning {
         }
         return false
     }
+}
 
-    private func hash(data: Data) -> String {
+private extension SSLPinning {
+    func hash(data: Data) -> String {
         var keyWithHeader = Data(Self.rsa2048Asn1Header)
         keyWithHeader.append(data)
         if #available(iOS 13, *) {
@@ -61,7 +56,7 @@ extension SSLPinning {
         }
     }
 
-    private static var rsa2048Asn1Header: [UInt8] = [
+    static var rsa2048Asn1Header: [UInt8] = [
         0x30, 0x82, 0x01, 0x22, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86,
         0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0F, 0x00,
     ]
