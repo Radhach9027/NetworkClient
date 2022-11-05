@@ -66,35 +66,37 @@ import Foundation
 import NetworkClient
 
 extension Network {
+
+    ########### With sslpinning ###########
     class var defaultSession: Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
-            return Network(
+            return .init(
                 config: .default(),
                 pinning: .certificatePinning(certificate: certificate)
             )
         case .failure:
-            return Network(config: .default())
+            return .init(config: .default())
         }
     }
 
     class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
-            return Network(
+            return .init(
                 config: .background(identifer: Bundle.identifier),
                 pinning: .certificatePinning(certificate: certificate),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         case .failure:
-            return Network(
+            return .init(
                 config: .background(identifer: Bundle.identifier),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         }
     }
     
-    ########### Without sslpinning (default): ###########
+    ########### Without sslpinning ###########
     class var defaultSession: Network {
           .init(config: .default())
     }
