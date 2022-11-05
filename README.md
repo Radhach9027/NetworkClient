@@ -17,7 +17,7 @@
 
 ### Create required extensions as below in your app, in-order to make your job easy:
 
-* Create an extension like SecCertificate+Extensions from host app: (Fetching SecCertificate from your bundle)
+* Create an extension like SecCertificate+Extensions from host app: (Loading SecCertificate from bundle if exists)
 
 ```
 enum SecCertificateError<S, F> {
