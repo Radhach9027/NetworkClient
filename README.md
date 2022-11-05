@@ -94,9 +94,16 @@ extension Network {
         }
     }
     
-    ### Without sslpinning (default):
+    ########### Without sslpinning (default): ###########
     class var defaultSession: Network {
-         return Network(config: .default())
+          .init(config: .default())
+    }
+    
+    class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
+          .init(
+                config: .background(identifer: Bundle.identifier),
+                urlSessionDidFinishEvents: urlSessionDidFinishEvents
+            )
     }
 }
 ```
