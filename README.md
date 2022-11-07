@@ -17,10 +17,10 @@
 
 ### Create required extensions as below in your app, in-order to make your job easy:
 
-* Create an extension like SecCertificate+Extensions from host app: (Fetching SecCertificate from your bundle)
+* Create an extension like SecCertificate+Extensions from host app: (Loading SecCertificate from bundle if exists)
 
 ```
-enum SecCertificateError<S, F> {
+enum SecCertificateResult<S, F> {
     case success(S)
     case failure(F)
 }
@@ -37,7 +37,7 @@ extension SecCertificate {
     static func loadFromBundle(
         certName: String = Certificate.name,
         bundle: Bundle = Bundle.main
-    ) -> SecCertificateError<SecCertificate, String> {
+    ) -> SecCertificateResult<SecCertificate, String> {
         guard let filePath = bundle.path(
             forResource: certName,
             ofType: "cer"
@@ -66,37 +66,46 @@ import Foundation
 import NetworkClient
 
 extension Network {
+
+    ########### With sslpinning ###########
     class var defaultSession: Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
-            return Network(
+            return .init(
                 config: .default(),
                 pinning: .certificatePinning(certificate: certificate)
             )
         case .failure:
-            return Network(config: .default())
+            return .init(config: .default())
         }
     }
 
     class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
-            return Network(
+            return .init(
                 config: .background(identifer: Bundle.identifier),
                 pinning: .certificatePinning(certificate: certificate),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         case .failure:
-            return Network(
+            return .init(
                 config: .background(identifer: Bundle.identifier),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         }
     }
     
-    ### Without sslpinning (default):
+    ########### Without sslpinning ###########
     class var defaultSession: Network {
-         return Network(config: .default())
+          .init(config: .default())
+    }
+    
+    class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
+          .init(
+                config: .background(identifer: Bundle.identifier),
+                urlSessionDidFinishEvents: urlSessionDidFinishEvents
+            )
     }
 }
 ```
