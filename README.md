@@ -494,6 +494,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   ```
 
 ### Development in-progress:
+ * Websocket
  * Conquerent requests.
  * Bulk uploads.
  * Bulk downloads.
