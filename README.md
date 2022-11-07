@@ -12,6 +12,8 @@
 
 * Download with progress
 
+* WebSocket
+
 * Sslpinning (certificate, publicKey)
 
 
