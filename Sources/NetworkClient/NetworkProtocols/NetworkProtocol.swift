@@ -40,14 +40,17 @@ public protocol DownloadProtocol {
 
 public protocol URLSessionTaskProtocol {
     func suspend(for request: URLRequest)
-
     func resume(for request: URLRequest)
-
     func cancel(for request: URLRequest)
-
     func cancelAllRequests()
-    
     func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
 }
 
-public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, URLSessionTaskProtocol {}
+public protocol NetworkWebSocketProtocol {
+    func start(for url: NetworkRequestProtocol, completion:@escaping (NetworkError?) -> Void)
+    func send(message: NetworkSocketMessage, completion: @escaping((NetworkError?) -> Void))
+    func receive() -> PassthroughSubject<NetworkSocketMessage, NetworkError>
+    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: String?)
+}
+
+public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, URLSessionTaskProtocol, NetworkWebSocketProtocol {}

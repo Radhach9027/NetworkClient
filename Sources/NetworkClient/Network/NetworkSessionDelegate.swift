@@ -5,7 +5,8 @@ final class NetworkSessionDelegate: NSObject,
     URLSessionTaskDelegate,
     URLSessionDelegate,
     URLSessionDownloadDelegate,
-    URLSessionDataDelegate {
+    URLSessionDataDelegate,
+    URLSessionWebSocketDelegate {
     enum RequestType {
         case upload, download
     }
@@ -134,6 +135,25 @@ final class NetworkSessionDelegate: NSObject,
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         urlSessionDidFinishEvents?(session)
+    }
+    
+    // MARK: URLSessionWebSocketDelegate delegates
+    
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didOpenWithProtocol protocol: String?
+    ) {
+        print("Web Socket did connect")
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        webSocketTask: URLSessionWebSocketTask,
+        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: Data?
+    ) {
+        print("Web Socket did disconnect")
     }
 }
 

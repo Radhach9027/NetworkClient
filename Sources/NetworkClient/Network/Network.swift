@@ -12,6 +12,8 @@ public final class Network {
     private(set) var delegate: NetworkSessionDelegate
     private(set) var logger: NetworkLoggerProtocol?
     private(set) var urlSessionDidFinishEvents: ((URLSession) -> Void)?
+    
+    var socketTask: URLSessionWebSocketTaskProtocol?
     var cancellable = Set<AnyCancellable>()
     public static var isInternetReachable: Bool {
         NetworkReachability.shared.isReachable
@@ -32,8 +34,8 @@ public final class Network {
 
 // MARK: Network Intializers
 
-extension Network {
-    public convenience init(
+public extension Network {
+     convenience init(
         config: SessionConfiguration,
         pinning: SSLPinning,
         logger: NetworkLoggerProtocol,
@@ -71,7 +73,7 @@ extension Network {
         }
     }
 
-    public convenience init(
+    convenience init(
         config: SessionConfiguration,
         urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
     ) {
@@ -103,7 +105,7 @@ extension Network {
         }
     }
 
-    public convenience init(
+    convenience init(
         config: SessionConfiguration,
         pinning: SSLPinning,
         urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
@@ -140,6 +142,6 @@ extension Network {
     }
 }
 
-// MARK: Request, Upload, Download, URLSessionTask
+// MARK: Request, Upload, Download, URLSessionTask, WebSocket
 
 extension Network: NetworkProtocol {}
