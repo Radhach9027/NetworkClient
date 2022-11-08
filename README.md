@@ -623,7 +623,6 @@ final class SocketService: ObservableObject {
 
 **** If in case the sample API's are not working for the endpoints that have been consumed, please test it by using the working API'S.
 ****
----
 
 
 **Contributors:**
