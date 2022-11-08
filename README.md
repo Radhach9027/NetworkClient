@@ -518,7 +518,7 @@ extension SocketEndpoint: NetworkRequestProtocol {
     }
     
     var httpMethod: NetworkRequestMethod {
-        .post
+        .get
     }
 }
 ```
