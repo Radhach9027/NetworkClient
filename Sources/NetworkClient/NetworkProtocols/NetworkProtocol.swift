@@ -38,7 +38,7 @@ public protocol DownloadProtocol {
     ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
 }
 
-public protocol URLSessionTaskProtocol {
+public protocol NetworkSessionTaskProtocol {
     func suspend(for request: URLRequest)
     func resume(for request: URLRequest)
     func cancel(for request: URLRequest)
@@ -53,4 +53,4 @@ public protocol NetworkWebSocketProtocol {
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: String?)
 }
 
-public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, URLSessionTaskProtocol, NetworkWebSocketProtocol {}
+public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, NetworkSessionTaskProtocol, NetworkWebSocketProtocol {}
