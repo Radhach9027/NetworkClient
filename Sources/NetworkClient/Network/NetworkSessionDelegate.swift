@@ -12,8 +12,8 @@ final class NetworkSessionDelegate: NSObject,
     }
 
     var urlSessionDidFinishEvents: ((URLSession) -> Void)?
-    var downloadProgressSubject: PassthroughSubject<DownloadNetworkResponse, NetworkError> = .init()
-    var uploadProgressSubject: PassthroughSubject<UploadNetworkResponse, NetworkError> = .init()
+    var downloadProgressSubject: PassthroughSubject<NetworkDownloadResponse, NetworkError> = .init()
+    var uploadProgressSubject: PassthroughSubject<NetworkUploadResponse, NetworkError> = .init()
     var saveToLocation: URL?
     var requestType: RequestType = .download
     private var pinning: SSLPinning?

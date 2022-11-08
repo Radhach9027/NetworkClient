@@ -23,19 +23,19 @@ public protocol UploadProtocol {
     func upload(
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<NetworkUploadResponse, NetworkError>
 
     func uploadMultipart(
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<NetworkUploadResponse, NetworkError>
 }
 
 public protocol DownloadProtocol {
     func download(
         for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<DownloadNetworkResponse, NetworkError>
+    ) -> PassthroughSubject<NetworkDownloadResponse, NetworkError>
 }
 
 public protocol NetworkSessionTaskProtocol {

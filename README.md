@@ -312,7 +312,7 @@ final class UploadMultipartService: ObservableObject {
         self.network = network
     }
 
-    func upload(endpoint: UploadMultipartEndPoint, receive: DispatchQueue) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
+    func upload(endpoint: UploadMultipartEndPoint, receive: DispatchQueue) -> PassthroughSubject<NetworkUploadResponse, NetworkError> {
          network.uploadMultipart(with: endpoint, receive: .main)
     }
 }
@@ -414,7 +414,7 @@ final class DownloadService: ObservableObject {
         self.network = network
     }
 
-    func download(endpoint: DownloadEndpoint, receive: DispatchQueue) -> PassthroughSubject<DownloadNetworkResponse, NetworkError> {
+    func download(endpoint: DownloadEndpoint, receive: DispatchQueue) -> PassthroughSubject<NetworkDownloadResponse, NetworkError> {
          network.download(for: endpoint, receive: receive)
     }
 }
@@ -492,6 +492,120 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .store(in: &cancellable)
     }
   ```
+  
+### Connecting to websocket using sample socket request:
+* In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
+* As of the moment we'r using piesocket.com for testing purpose, you can find the api details once you signup here <https://www.piesocket.com/>
+
+```
+import NetworkClient
+
+enum SocketEndpoint {
+    case start
+}
+
+extension SocketEndpoint: NetworkRequestProtocol {
+    var baseURL: String {
+        "wss://demo.piesocket.com"
+    }
+    
+    var urlPath: String {
+        "/v3/1?api_key=yourApiKey&notify_self"
+    }
+    
+    var urlComponents: URLComponents? {
+        URLComponents(string: baseURL + urlPath)
+    }
+    
+    var httpMethod: NetworkRequestMethod {
+        .post
+    }
+}
+```
+
+### Making the socket request using the endpoint(SocketEndpoint):
+* In order to achieve this, we'r creating a SocketService class and using all exposed functions from the NetworkClient.
+
+```
+import Combine
+import Foundation
+import NetworkClient
+
+final class SocketService: ObservableObject {
+    private var network: NetworkProtocol
+
+    init(network: NetworkProtocol) {
+        self.network = network
+    }
+    
+    func startSession(endPoint: SocketEndpoint, completion: @escaping (NetworkError?) -> Void) {
+        network.start(for: endPoint, completion: completion)
+    }
+    
+    func send(message: NetworkSocketMessage, completion: @escaping (NetworkError?) -> Void) {
+        network.send(message: message, completion: completion)
+    }
+    
+    func receive() -> PassthroughSubject<NetworkSocketMessage, NetworkError> {
+        network.receive()
+    }
+    
+    func cancelSession(cancelCode: URLSessionWebSocketTask.CloseCode, reason: String? = nil) {
+        network.cancel(with: cancelCode, reason: reason)
+    }
+}
+```
+
+### Finally, consuming the SocketService:
+* Declaring socket service
+
+```
+    private lazy var service = SocketService(network: Network.defaultSession)
+```
+
+ * Intially we need establish a connection by using below code snippet
+```
+     @IBAction func start(sender: UIButton) {
+        service.startSession(endPoint: .start) { [weak self] error in
+            if let error = error {
+                 debugPrint(error)
+            }
+    }
+  ```
+  
+   * Once connection is established then we can send or receive messages from server
+```
+    @IBAction func send(sender: UIButton) {
+         service.send(message: .text("some message")) { [weak self] error in
+                if let error = error {
+                    debugPrint(error)
+                }
+            }
+    }
+  ```
+  
+  ```
+     func recive() {
+        service.receive()
+            .sink { [weak self] result in
+                switch result {
+                case let .failure(error):
+                    debugPrint(error)
+                case .finished:
+                    debugPrint("finished")
+                }
+            } receiveValue: { message in
+                switch message {
+                case let .text(string):
+                    debugPrint(string)
+                case let .data(data):
+                    debugPrint(data)
+                }
+            }
+            .store(in: &cancellable)
+    }
+  ```
+
 
 ### Development in-progress:
  * Websocket

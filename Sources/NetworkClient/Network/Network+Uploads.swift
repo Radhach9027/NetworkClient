@@ -7,7 +7,7 @@ public extension Network {
     func upload(
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
+    ) -> PassthroughSubject<NetworkUploadResponse, NetworkError> {
         do {
             let uploadRequest = try request.makeRequest()
             delegate.requestType = .upload
@@ -26,7 +26,7 @@ public extension Network {
             return delegate.uploadProgressSubject
 
         } catch let error as NSError {
-            let failure = PassthroughSubject<UploadNetworkResponse, NetworkError>()
+            let failure = PassthroughSubject<NetworkUploadResponse, NetworkError>()
             failure.send(completion: .failure(NetworkError.convertErrorToNetworkError(error: error)))
             return failure
         }
@@ -35,14 +35,14 @@ public extension Network {
     func uploadMultipart(
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
-    ) -> PassthroughSubject<UploadNetworkResponse, NetworkError> {
+    ) -> PassthroughSubject<NetworkUploadResponse, NetworkError> {
         do {
             let multipartRequest = try request.makeRequest()
             delegate.requestType = .upload
             session.uploadTask(with: multipartRequest, from: request.makeFormBody()).resumeTask()
             return delegate.uploadProgressSubject
         } catch let error as NSError {
-            let failure = PassthroughSubject<UploadNetworkResponse, NetworkError>()
+            let failure = PassthroughSubject<NetworkUploadResponse, NetworkError>()
             failure.send(completion: .failure(NetworkError.convertErrorToNetworkError(error: error)))
             return failure
         }

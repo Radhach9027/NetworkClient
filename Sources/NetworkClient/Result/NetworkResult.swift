@@ -1,11 +1,11 @@
 import Foundation
 
-public enum UploadNetworkResponse {
+public enum NetworkUploadResponse {
     case progress(percentage: Float)
     case response(data: Data)
 }
 
-public enum DownloadNetworkResponse {
+public enum NetworkDownloadResponse {
     case progress(percentage: Float)
     case response(data: URL)
 }
