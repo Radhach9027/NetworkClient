@@ -524,7 +524,7 @@ extension SocketEndpoint: NetworkRequestProtocol {
 ```
 
 ### Making the socket request using the endpoint(SocketEndpoint):
-* In order to achieve this, we'r creating a SocketService class and using all exposed functions from the NetworkClient.
+* In order to achieve this, we'r creating a SocketService class and using all exposed functions for the socket from the NetworkClient.
 
 ```
 import Combine
