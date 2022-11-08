@@ -12,7 +12,7 @@ public extension Network {
         }
     }
 
-    func send(message: NetworkSocketMessage, completion: @escaping ((NetworkError?) -> Void)) {
+    func send(message: NetworkSocketMessage, completion: @escaping (NetworkError?) -> Void) {
         var sessionMessage: URLSessionWebSocketTask.Message = .string(.empty)
 
         switch message {

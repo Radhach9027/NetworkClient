@@ -12,7 +12,7 @@ public protocol RequestProtocol {
         codable: T.Type,
         receive: DispatchQueue
     ) -> AnyPublisher<T, NetworkError> where T: Decodable
-    
+
     func serialRequests(
         for requests: [NetworkRequestProtocol],
         receive: DispatchQueue
@@ -47,10 +47,18 @@ public protocol NetworkSessionTaskProtocol {
 }
 
 public protocol NetworkWebSocketProtocol {
-    func start(for url: NetworkRequestProtocol, completion:@escaping (NetworkError?) -> Void)
-    func send(message: NetworkSocketMessage, completion: @escaping((NetworkError?) -> Void))
+    func start(for url: NetworkRequestProtocol, completion: @escaping (NetworkError?) -> Void)
+    func send(message: NetworkSocketMessage, completion: @escaping (NetworkError?) -> Void)
     func receive() -> PassthroughSubject<NetworkSocketMessage, NetworkError>
     func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: String?)
 }
 
-public protocol NetworkProtocol: RequestProtocol, UploadProtocol, DownloadProtocol, NetworkSessionTaskProtocol, NetworkWebSocketProtocol {}
+// MARK: Conforming Request, Upload, Download, URLSessionTask, WebSocket to NetworkProtocol as this has been exposed to host app.
+
+public protocol NetworkProtocol:
+    RequestProtocol,
+    UploadProtocol,
+    DownloadProtocol,
+    NetworkWebSocketProtocol,
+    NetworkSessionTaskProtocol
+{}

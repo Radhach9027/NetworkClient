@@ -12,7 +12,7 @@ public final class Network {
     private(set) var delegate: NetworkSessionDelegate
     private(set) var logger: NetworkLoggerProtocol?
     private(set) var urlSessionDidFinishEvents: ((URLSession) -> Void)?
-    
+
     var socketTask: URLSessionWebSocketTaskProtocol?
     var cancellable = Set<AnyCancellable>()
     public static var isInternetReachable: Bool {
@@ -35,7 +35,7 @@ public final class Network {
 // MARK: Network Intializers
 
 public extension Network {
-     convenience init(
+    convenience init(
         config: SessionConfiguration,
         pinning: SSLPinning,
         logger: NetworkLoggerProtocol,
