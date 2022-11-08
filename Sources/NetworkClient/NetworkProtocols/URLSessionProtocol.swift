@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol URLSessionProtocol: WebSocketProtocol {
+public protocol URLSessionProtocol: URLSessionWebSocketProtocol {
     func dataTaskPublisher(for request: URLRequest) -> URLSession.DataTaskPublisher
     func downloadTask(with request: URLRequest) -> URLSessionDownloadTask
     func uploadTask(with request: URLRequest, from bodyData: Data) -> URLSessionUploadTask

@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 public extension Network {
-     func start(for request: NetworkRequestProtocol, completion: @escaping (NetworkError?) -> Void) {
+    func start(for request: NetworkRequestProtocol, completion: @escaping (NetworkError?) -> Void) {
         do {
             let request = try request.makeRequest()
             socketTask = session.webSocketTask(with: request)
@@ -13,22 +13,20 @@ public extension Network {
     }
 
     func send(message: NetworkSocketMessage, completion: @escaping ((NetworkError?) -> Void)) {
+        var sessionMessage: URLSessionWebSocketTask.Message = .string(.empty)
+
         switch message {
         case let .text(text):
-            socketTask?.send(.string(text), completionHandler: { error in
-                if let error = error as? NSError {
-                    completion(NetworkError.convertErrorToNetworkError(error: error))
-                }
-                completion(nil)
-            })
+            sessionMessage = .string(text)
         case let .data(data):
-            socketTask?.send(.data(data), completionHandler: { error in
-                if let error = error as? NSError {
-                    completion(NetworkError.convertErrorToNetworkError(error: error))
-                }
-                completion(nil)
-            })
+            sessionMessage = .data(data)
         }
+        socketTask?.send(sessionMessage, completionHandler: { error in
+            if let error = error as? NSError {
+                completion(NetworkError.convertErrorToNetworkError(error: error))
+            }
+            completion(nil)
+        })
     }
 
     func receive() -> PassthroughSubject<NetworkSocketMessage, NetworkError> {

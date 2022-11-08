@@ -10,6 +10,7 @@ public enum NetworkErrorTitle: Codable {
     case download
     case upload
     case apiDelegate
+    case socket
     case some(String)
 }
 
@@ -25,6 +26,7 @@ extension NetworkErrorTitle {
             case .download: return "Api download error"
             case .upload: return "Api upload error"
             case .apiDelegate: return "Urlsession delegate error"
+            case .socket: return "Websocket error"
             case .some(let title): return title
         }
     }
