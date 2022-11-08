@@ -493,7 +493,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   ```
   
-### Connecting to websocket using sample socket request:
+### Connecting to a websocket using sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
 * As of the moment we'r using piesocket.com for testing purpose, you can find the api details once you signup here <https://www.piesocket.com/>
 
