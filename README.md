@@ -1,8 +1,6 @@
-# Network Client
+![NetworkClient](https://user-images.githubusercontent.com/45123160/200607858-5e962f42-aa17-444e-97ad-4a27fb54c8bc.jpeg)
 
-![Network Client](Resources/NetworkClient.jpeg)
-
-* It uses URLSession.
+* An elegent Network Client for swift, Based on URLSession.
 * Built over SPM, add to your package dependency https://github.com/Radhach9027/NetworkClient and point to **main** branch.
 
 
@@ -18,7 +16,8 @@
 
 * Sslpinning (certificate, publicKey)
 
-
+### Usage:
+---
 ### Create required extensions as below in your app, in-order to make your job easy:
 
 * Create an extension like SecCertificate+Extensions from host app: (Loading SecCertificate from bundle if exists)
@@ -520,7 +519,7 @@ extension SocketEndpoint: NetworkRequestProtocol {
     }
     
     var httpMethod: NetworkRequestMethod {
-        .post
+        .get
     }
 }
 ```
