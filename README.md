@@ -621,7 +621,7 @@ final class SocketService: ObservableObject {
 
 **Note:**
 
-* If in case the above used sample example API's are not working for the endpoints, please test it by using the working API'S.
+* If in case the above used sample example API's are not working for the endpoints, please test it by using the working API'S or ([NASA OPEN SOURCE API's](https://wilsjame.github.io/how-to-nasa/))
 ****
 
 
