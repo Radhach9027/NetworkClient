@@ -616,5 +616,10 @@ final class SocketService: ObservableObject {
  * Need to address comments for required code snippets.
  * Need to create a client side server for real time issues.
  
+---
+**NOTE**
+
+THE SAMPLE API'S WE'R CONSUMING MIGHT NOT WORK FOR YOU, TEST IT USING THE WORKING API'S.
+---
 
 ### Open to contributors, Please follow Feature Branching Strategy and raise PR's.
