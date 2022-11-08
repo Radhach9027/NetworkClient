@@ -495,7 +495,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
 ### Connecting to a websocket using sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
-* As of the moment we'r using piesocket.com for testing purpose, you can find the api details once you signup here <https://www.piesocket.com/>
+* As of the moment we'r using piesocket.com for testing purpose, you can find the api details once you signup [Here](https://www.piesocket.com/)
 
 ```
 import NetworkClient
@@ -618,13 +618,14 @@ final class SocketService: ObservableObject {
  
  
 ---
+
 **NOTE:**
-THE SAMPLE API'S WE'R CONSUMING MIGHT NOT WORK FOR YOU, TEST IT USING THE WORKING API'S.
+
+**** If in case the sample API's are not working for the endpoints that have been consumed, please test it by using the working API'S.
+****
 ---
 
 
----
 **Contributors:**
 * [Ch Radha chandan](https://github.com/Radhach9027)
 * Open to contributors, Please follow Feature Branching Strategy and raise PR's.
----
