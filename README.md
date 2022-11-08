@@ -621,7 +621,7 @@ final class SocketService: ObservableObject {
 
 **Note:**
 
-* If in case the sample API's are not working for the endpoints, that have been consumed in the same examples given above, please test it by using the working API'S.
+* If in case the above used sample example API's are not working for the endpoints, please test it by using the working API'S.
 ****
 
 
