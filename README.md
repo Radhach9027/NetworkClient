@@ -121,7 +121,7 @@ extension Network {
  
 ### Creating a sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
-* At the moment we'r using NASA OPEN SOURCE API's for testing purpose, ([FYR](https://wilsjame.github.io/how-to-nasa/))
+* At the moment we'r using NASA OPEN SOURCE API's for testing purpose. ([FYR](https://wilsjame.github.io/how-to-nasa/))
 
 ```
 import NetworkClient
@@ -624,11 +624,6 @@ final class SocketService: ObservableObject {
  
  
 ---
-
-**Note:**
-
-* If in case the above used sample example API's are not working for the endpoints, please test it by using the working API'S or ([NASA OPEN SOURCE API's](https://wilsjame.github.io/how-to-nasa/))
-****
 
 
 **Contributors:**
