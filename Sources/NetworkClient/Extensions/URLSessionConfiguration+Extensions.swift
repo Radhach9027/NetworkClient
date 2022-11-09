@@ -12,4 +12,11 @@ extension URLSessionConfiguration {
         configuration.sessionSendsLaunchEvents = true
         return configuration
     }
+    
+    static var cache: URLSessionConfiguration {
+        URLCache.shared.memoryCapacity = 512 * 1024 * 1024
+        let configuration = URLSessionConfiguration.default
+        configuration.requestCachePolicy = .returnCacheDataElseLoad
+        return configuration
+    }
 }

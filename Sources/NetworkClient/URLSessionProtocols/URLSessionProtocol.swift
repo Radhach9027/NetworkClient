@@ -7,7 +7,6 @@ public protocol URLSessionProtocol: URLSessionWebSocketProtocol {
     func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask
     func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
     func flush(completionHandler: @escaping @Sendable () -> Void)
-
 }
 
 extension URLSession: URLSessionProtocol {}

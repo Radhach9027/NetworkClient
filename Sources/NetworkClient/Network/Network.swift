@@ -5,6 +5,7 @@ public enum SessionConfiguration {
     case `default`(queue: OperationQueue? = nil)
     case background(identifer: String, queue: OperationQueue? = nil)
     case ephemeral(queue: OperationQueue? = nil)
+    case cache(queue: OperationQueue? = nil)
 }
 
 public final class Network {
@@ -70,6 +71,12 @@ public extension Network {
                 logger: logger,
                 delegate: delegate
             )
+        case let .cache(queue):
+            self.init(
+                session: URLSession.cacheSession(delegate: delegate, queue: queue),
+                logger: nil,
+                delegate: delegate
+            )
         }
     }
 
@@ -99,6 +106,12 @@ public extension Network {
         case let .ephemeral(queue):
             self.init(
                 session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
+                logger: nil,
+                delegate: delegate
+            )
+        case let .cache(queue):
+            self.init(
+                session: URLSession.cacheSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )
@@ -135,6 +148,12 @@ public extension Network {
         case let .ephemeral(queue):
             self.init(
                 session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
+                logger: nil,
+                delegate: delegate
+            )
+        case let .cache(queue):
+            self.init(
+                session: URLSession.cacheSession(delegate: delegate, queue: queue),
                 logger: nil,
                 delegate: delegate
             )

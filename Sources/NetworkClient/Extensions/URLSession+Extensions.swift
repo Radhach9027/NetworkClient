@@ -28,4 +28,12 @@ extension URLSession {
             delegateQueue: queue
         )
     }
+
+    static func cacheSession(delegate: URLSessionDelegate, queue: OperationQueue? = nil) -> URLSession {
+        return URLSession(
+            configuration: .cache,
+            delegate: delegate,
+            delegateQueue: queue
+        )
+    }
 }
