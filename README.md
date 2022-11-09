@@ -633,8 +633,8 @@ final class SocketService: ObservableObject {
 * [Ch Radha chandan](https://github.com/Radhach9027)
 * Open to contributors, Please follow Feature Branching Strategy and raise PR's.
 
-
 ---
+
 ## License
 * All modules are released under the MIT license. See [LICENSE](LICENSE) for details.
 
