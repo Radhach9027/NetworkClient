@@ -1,5 +1,4 @@
 ![Swift Version 5](https://img.shields.io/badge/Swift-v5-yellow.svg)
-[![CocoaPods Version Badge](https://img.shields.io/cocoapods/v/SecurityExtensions.svg)](https://cocoapods.org/pods/SecurityExtensions)
 [![License Badge](https://img.shields.io/cocoapods/l/SecurityExtensions.svg)](https://github.com/svdo/swift-SecurityExtensions/blob/master/LICENSE.txt)
 ![Supported Platforms Badge](https://img.shields.io/cocoapods/p/SecurityExtensions.svg)
 [![Percentage Documented Badge](https://img.shields.io/cocoapods/metrics/doc-percent/SecurityExtensions.svg)](http://cocoadocs.org/docsets/SecurityExtensions)
