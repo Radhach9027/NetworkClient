@@ -1,5 +1,4 @@
-[![Platform support](![Swift Version 5](https://img.shields.io/badge/Swift-v5-yellow.svg))
-](https://img.shields.io/badge/platform%3A-iOS%207.0%2B%20%7C%20macOS%2010.9%2B%20%7C%20tvOS%209.0%2B%20%7C%20watchOS%202.0%2B-orange)
+[![Platform support](https://img.shields.io/badge/platform%3A-iOS%207.0%2B%20%7C%20macOS%2010.9%2B%20%7C%20tvOS%209.0%2B%20%7C%20watchOS%202.0%2B-orange)
 [![License Badge](https://img.shields.io/cocoapods/l/SecurityExtensions.svg)](https://github.com/svdo/swift-SecurityExtensions/blob/master/LICENSE.txt)
 ![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/Radhach9027/NetworkClient)
 
