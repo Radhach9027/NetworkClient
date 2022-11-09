@@ -3,6 +3,7 @@
 * An elegent Network Client for swift, Based on URLSession.
 * Built over SPM, add to your package dependency [NetworkClient](https://github.com/Radhach9027/NetworkClient) and point to **main** branch.
 
+---
 
 ### Key Features:
 
@@ -15,6 +16,7 @@
 * WebSocket
 
 * Sslpinning (certificate, publicKey)
+---
 
 ### Usage:
 ---
@@ -612,6 +614,7 @@ final class SocketService: ObservableObject {
     }
   ```
 
+---
 
 ### Development in-progress:
  * Websocket
