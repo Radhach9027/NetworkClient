@@ -1,3 +1,10 @@
+![Swift Version 5](https://img.shields.io/badge/Swift-v5-yellow.svg)
+[![CocoaPods Version Badge](https://img.shields.io/cocoapods/v/SecurityExtensions.svg)](https://cocoapods.org/pods/SecurityExtensions)
+[![License Badge](https://img.shields.io/cocoapods/l/SecurityExtensions.svg)](https://github.com/svdo/swift-SecurityExtensions/blob/master/LICENSE.txt)
+![Supported Platforms Badge](https://img.shields.io/cocoapods/p/SecurityExtensions.svg)
+[![Percentage Documented Badge](https://img.shields.io/cocoapods/metrics/doc-percent/SecurityExtensions.svg)](http://cocoadocs.org/docsets/SecurityExtensions)
+[![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
+
 ![NetworkClient](https://user-images.githubusercontent.com/45123160/200607858-5e962f42-aa17-444e-97ad-4a27fb54c8bc.jpeg)
 
 * An elegent Network Client for swift, Based on URLSession.
