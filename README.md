@@ -1,7 +1,5 @@
 ![Platform support](https://img.shields.io/badge/platform%3A-iOS%207.0%2B%20%7C%20macOS%2010.9%2B%20%7C%20tvOS%209.0%2B%20%7C%20watchOS%202.0%2B-orange)
 ![License Badge](https://img.shields.io/cocoapods/l/SecurityExtensions.svg)](https://github.com/svdo/swift-SecurityExtensions/blob/master/LICENSE.txt)
-[![License](https://img.shields.io/cocoapods/l/BadgeSwift.svg?style=flat)](/LICENSE)
-[![Platform](https://img.shields.io/cocoapods/p/BadgeSwift.svg?style=flat)](http://cocoadocs.org/docsets/BadgeSwift)
 
 ![NetworkClient](https://user-images.githubusercontent.com/45123160/200607858-5e962f42-aa17-444e-97ad-4a27fb54c8bc.jpeg)
 
