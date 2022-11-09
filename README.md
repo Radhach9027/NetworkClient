@@ -1,3 +1,8 @@
+# 🏷 Tagged
+
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-tagged%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/pointfreeco/swift-tagged)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-tagged%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pointfreeco/swift-tagged)
+
 ![NetworkClient](https://user-images.githubusercontent.com/45123160/200607858-5e962f42-aa17-444e-97ad-4a27fb54c8bc.jpeg)
 
 * An elegent Network Client for swift, Based on URLSession.
