@@ -1,5 +1,6 @@
 ![Platform support](https://img.shields.io/badge/platform%3A-iOS%207.0%2B%20%7C%20macOS%2010.9%2B%20%7C%20tvOS%209.0%2B%20%7C%20watchOS%202.0%2B-orange)
 ![Swift Compatibility](https://img.shields.io/badge/swift%20compatibility%20%3A-5x%2B-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellowgreen)
 
 ![NetworkClient](https://user-images.githubusercontent.com/45123160/200607858-5e962f42-aa17-444e-97ad-4a27fb54c8bc.jpeg)
 
@@ -639,5 +640,5 @@ final class SocketService: ObservableObject {
 ---
 
 ## License
-* All modules are released under the MIT license. See [LICENSE](LICENSE) for details.
+* All modules are released under the MIT license. See [LICENSE](https://github.com/Radhach9027/NetworkClient/blob/main/LICENSE) for details.
 
