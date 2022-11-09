@@ -121,6 +121,7 @@ extension Network {
  
 ### Creating a sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
+* At the moment we'r using NASA OPEN SOURCE API's for testing purpose, ([FYR](https://wilsjame.github.io/how-to-nasa/))
 
 ```
 import NetworkClient
