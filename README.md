@@ -371,6 +371,29 @@ final class UploadMultipartService: ObservableObject {
 
 ### Creating a sample download request:
 * In order to achieve this, we need to create an endpoint and conform to NetworkDownloadRequestProtocol to it.
+* Creating an extension for FileManager to save the downloaded url to respective folder.
+
+```
+import Foundation
+
+extension FileManager {
+    static func createFolder(folder: String) throws -> URL {
+        let documentDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let directoryURL = documentDirectoryURL.appendingPathComponent(folder, isDirectory: true)
+
+        if FileManager.default.fileExists(atPath: directoryURL.path) {
+            return directoryURL
+        } else {
+            do {
+                try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
+                return directoryURL
+            } catch {
+                throw error
+            }
+        }
+    }
+}
+```
 
 ```
 import Foundation
@@ -382,7 +405,13 @@ enum DownloadEndpoint {
 
 extension DownloadEndpoint: NetworkDownloadRequestProtocol {
     var saveDownloadedUrlToLocation: URL? {
-        nil // save to default
+        do {
+            let location = try FileManager.createFolder(folder: "BGDownloads")
+            return location
+        } catch {
+            print(error.localizedDescription)
+            return nil // this will save to default location.
+        }
     }
 
     var urlPath: String {
