@@ -1,4 +1,4 @@
-![Platform support](https://img.shields.io/badge/Platform%3A-iOS%207.0%2B%20%7C%20macOS%2010.9%2B%20%7C%20tvOS%209.0%2B%20%7C%20watchOS%202.0%2B-orange)
+![Platform support](https://img.shields.io/badge/platform%3A-iOS%2013.0%2B%20%7C%20macOS%2010.15%2B%20%7C%20tvOS%2013.0%2B%20%7C%20watchOS%206.0%2B-orange)
 ![Swift Compatibility](https://img.shields.io/badge/Swift%20Compatibility%20-5x%2B-green)
 ![Dependency](https://img.shields.io/badge/Dependency-SPM-blue)
 [![License](https://img.shields.io/badge/License-MIT-red)](https://github.com/Radhach9027/NetworkClient/blob/main/LICENSE)
