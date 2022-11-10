@@ -128,7 +128,7 @@ extension Network {
  
 ### Creating a sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
-* NetworkRequestProtocol is responsibilble for building the request from the host app.
+* NetworkRequestProtocol is responsible for building the request from the host app.
 * At the moment we'r using NASA OPEN SOURCE API's for testing purpose. ([FYR](https://wilsjame.github.io/how-to-nasa/))
 
 ```
@@ -268,7 +268,7 @@ final class RequestService: ObservableObject {
 
 ### Creating a sample multi-part upload request:
 * In order to achieve this, we need to create an endpoint and conform to NetworkMultipartUploadRequestProtocol to it.
-* NetworkMultipartUploadRequestProtocol is responsibilble for building the upload request from the host app.
+* NetworkMultipartUploadRequestProtocol is responsible for building the upload request from the host app.
 
 ```
 import Foundation
@@ -373,7 +373,7 @@ final class UploadMultipartService: ObservableObject {
 
 ### Creating a sample download request:
 * In order to achieve this, we need to create an endpoint and conform to NetworkDownloadRequestProtocol to it.
-* NetworkDownloadRequestProtocol is responsibilble for building the download request from the host app.
+* NetworkDownloadRequestProtocol is responsible for building the download request from the host app.
 * Creating an extension for FileManager to save the downloaded url to respective folder.
 
 ```
@@ -547,7 +547,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
 ### Connecting to a websocket using sample request:
 * In order to achieve this, we need to create an endpoint and conform NetworkRequestProtocol to it.
-* NetworkRequestProtocol is responsibilble for building the socket request from the host app.
+* NetworkRequestProtocol is responsible for building the socket request from the host app.
 * As of the moment we'r using piesocket.com for testing purpose, you can find the api details once you signup [Here](https://www.piesocket.com/)
 
 ```
