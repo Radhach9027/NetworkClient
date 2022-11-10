@@ -94,16 +94,16 @@ extension Network {
         }
     }
 
-    class func backgroundSession(urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
+    class func backgroundSession(queue: OperationQueue, urlSessionDidFinishEvents: @escaping (URLSession) -> Void) -> Network {
         switch SecCertificate.loadFromBundle() {
         case let .success(certificate):
-            return .init(
-                config: .background(identifer: Bundle.identifier),
+            return Network(
+                config: .background(identifer: Bundle.identifier, queue: queue),
                 pinning: .certificatePinning(certificate: certificate),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
         case .failure:
-            return .init(
+            return Network(
                 config: .background(identifer: Bundle.identifier),
                 urlSessionDidFinishEvents: urlSessionDidFinishEvents
             )
@@ -443,8 +443,15 @@ final class DownloadService: ObservableObject {
 * Declaring background download Service
 
 ```
+    private lazy var downloadQueue: OperationQueue = {
+        var queue = OperationQueue()
+        queue.name = Bundle.identifier
+        queue.maxConcurrentOperationCount = 1
+        return queue
+    }()
+    
     private lazy var service = DownloadService(
-        network: Network.backgroundSession(urlSessionDidFinishEvents: { _ in
+        network: Network.backgroundSession(queue: downloadQueue, urlSessionDidFinishEvents: { _ in
             DispatchQueue.main.async {
                 if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
                    let completionHandler = appDelegate.backgroundSessionCompletionHandler {
@@ -485,7 +492,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  * Here we'r trying to download an image from server
 ```
     func download() {
-        service.download(endpoint: .image, receive: .main)
+        service.download(endpoint: .image, receive: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 switch result {
