@@ -409,8 +409,7 @@ enum DownloadEndpoint {
 extension DownloadEndpoint: NetworkDownloadRequestProtocol {
     var saveDownloadedUrlToLocation: URL? {
         do {
-            let location = try FileManager.createFolder(folder: "BGDownloads")
-            return location
+            return try FileManager.createFolder(folder: "BGDownloads")
         } catch {
             print(error.localizedDescription)
             return nil // this will save to default location.
