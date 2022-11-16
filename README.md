@@ -665,6 +665,7 @@ final class SocketService: ObservableObject {
  * Conquerent requests.
  * Bulk uploads.
  * Bulk downloads.
+ * Long running downloads in background
  * Still working on the test cases part. will be covering unit & integration testing.
  * Need to address comments for required code snippets.
  * Need to create a client side server for real time issues.
