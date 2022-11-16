@@ -86,7 +86,12 @@ final class NetworkSessionDelegate: NSObject,
             downloadProgressSubject.send(completion: .finished)
             return
         }
-        save(to: givenLocation, downloadedUrl: location)
+
+        save(
+            to: givenLocation,
+            downloadedUrl: location,
+            downloadTask: downloadTask
+        )
     }
 
     // MARK: URLSessionUpload delegates
@@ -136,9 +141,9 @@ final class NetworkSessionDelegate: NSObject,
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         urlSessionDidFinishEvents?(session)
     }
-    
+
     // MARK: URLSessionWebSocketDelegate delegates
-    
+
     func urlSession(
         _ session: URLSession,
         webSocketTask: URLSessionWebSocketTask,
@@ -146,7 +151,7 @@ final class NetworkSessionDelegate: NSObject,
     ) {
         print("Web Socket did connect")
     }
-    
+
     func urlSession(
         _ session: URLSession,
         webSocketTask: URLSessionWebSocketTask,
@@ -224,16 +229,13 @@ private extension NetworkSessionDelegate {
         uploadProgressSubject.send(completion: .finished)
     }
 
-    func save(to file: URL, downloadedUrl: URL) {
+    func save(to file: URL, downloadedUrl: URL, downloadTask: URLSessionDownloadTask) {
         do {
-            if FileManager.default.fileExists(atPath: file.path) {
-                try FileManager.default.removeItem(at: file)
+            let destinationURL = file.appendingPathComponent(downloadTask.originalRequest!.url!.lastPathComponent)
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
             }
-
-            try FileManager.default.copyItem(
-                at: downloadedUrl,
-                to: file
-            )
+            try FileManager.default.moveItem(at: downloadedUrl, to: destinationURL)
         } catch let fileError {
             downloadProgressSubject.send(completion: .failure(.init(
                 title: .download,
