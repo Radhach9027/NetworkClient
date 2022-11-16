@@ -163,7 +163,7 @@ extension RequestEndPoint: NetworkRequestProtocol {
 }
 ```
 
-### Making the request using the endpoint(RequestEndPoint):
+### Making the request by using the endpoint(RequestEndPoint):
 * In order to achieve this, we'r creating a RequestService class and using all three exposed request types from the NetworkClient.
 
 ```
@@ -312,7 +312,7 @@ extension UploadMultipartEndPoint: NetworkMultipartUploadRequestProtocol {
 }
 ```
 
-### Making the upload request using the endpoint(UploadMultipartEndPoint):
+### Making the upload request by using the endpoint(UploadMultipartEndPoint):
 * In order to achieve this, we'r creating a UploadMultipartService class and using the upload(endpoint: UploadMultipartEndPoint) func from the NetworkClient.
 
 ```
@@ -444,7 +444,7 @@ extension DownloadEndpoint: NetworkDownloadRequestProtocol {
 }
 ```
 
-### Making the download request using the endpoint(DownloadEndpoint):
+### Making the download request by using the endpoint(DownloadEndpoint):
 * In order to achieve this, we'r creating a DownloadService class and using the download(endpoint: DownloadEndpoint func from the NetworkClient.
 
 ```
@@ -576,7 +576,7 @@ extension SocketEndpoint: NetworkRequestProtocol {
 }
 ```
 
-### Making the socket request using the endpoint(SocketEndpoint):
+### Making the socket request by using the endpoint(SocketEndpoint):
 * In order to achieve this, we'r creating a SocketService class and using all exposed functions for the socket from the NetworkClient.
 
 ```
