@@ -14,3 +14,8 @@ public enum NetworkSocketMessage {
     case text(String)
     case data(Data)
 }
+
+public enum NetworkBulkDownloadResponse {
+    case progress(percentage: Float)
+    case response(data: URL, identifier: Int)
+}

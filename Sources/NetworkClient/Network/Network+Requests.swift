@@ -23,13 +23,15 @@ public extension Network {
                             switch result {
                             case let .failure(error):
                                 subject.send(completion: .failure(error))
+                                semaphore.signal()
+                                group.leave()
                             default:
                                 break
                             }
                         }, receiveValue: {
+                            subject.send($0)
                             semaphore.signal()
                             group.leave()
-                            subject.send($0)
                         })
                         .store(in: &self.cancellable)
                     semaphore.wait()
