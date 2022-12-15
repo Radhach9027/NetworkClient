@@ -1,7 +1,6 @@
 xcuserdata
 .idea
 .DS_Store
-.DS_Store
 NetworkClient/.DS_Store
 *.mobileprovision
 test_output
