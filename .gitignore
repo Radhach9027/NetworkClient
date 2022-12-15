@@ -1,5 +1,32 @@
+xcuserdata
+.idea
 .DS_Store
-/.build
-/Packages
-/*.xcodeproj
-xcuserdata/
+.DS_Store
+NetworkClient/.DS_Store
+*.mobileprovision
+test_output
+**/report.xml
+*.swp
+*.orig
+tags
+.bashrc
+vendor
+
+## App Packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Cocoapods
+Pods/
+
+## Fastlane
+fastlane/report.xml
+fastlane/README.md
+fastlane/screenshots
+fastlane/Preview.html
+
+## Sonar
+DerivedData
+Reports
+.scannerwork
