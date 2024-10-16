@@ -3,16 +3,15 @@ import Foundation
 
 @available(iOS 15.0, *)
 public final class AsyncNetwork {
+    private(set) var requestInterceptors: [NetworkRequestInterceptor] = []
+    private(set) var retryInterceptors: [NetworkRetryInterceptor] = []
     private(set) var session: URLSessionAsyncProtocol
     private(set) var delegate: NetworkSessionDelegate
     private(set) var logger: NetworkLoggerProtocol?
     private(set) var urlSessionDidFinishEvents: ((URLSession) -> Void)?
-    
+    public static let isInternetReachable: Bool =         NetworkReachability.shared.isReachable
     var socketTask: URLSessionWebSocketTaskProtocol?
     var cancellable = Set<AnyCancellable>()
-    public static var isInternetReachable: Bool {
-        NetworkReachability.shared.isReachable
-    }
     
     private init(
         session: URLSessionAsyncProtocol,
@@ -24,6 +23,17 @@ public final class AsyncNetwork {
         self.logger = logger
         self.delegate = delegate
         self.urlSessionDidFinishEvents = urlSessionDidFinishEvents
+    }
+}
+
+@available(iOS 15.0, *)
+private extension AsyncNetwork {
+    func add(requestInterceptor: NetworkRequestInterceptor) {
+        requestInterceptors.append(requestInterceptor)
+    }
+
+    func add(retryInterceptor: NetworkRetryInterceptor) {
+        retryInterceptors.append(retryInterceptor)
     }
 }
 
@@ -142,3 +152,8 @@ public extension AsyncNetwork {
         }
     }
 }
+
+// MARK: Request, Upload, Download, URLSessionTask, WebSocket
+
+@available(iOS 15.0, *)
+extension AsyncNetwork: AsyncNetworkProtocol {}

@@ -1,7 +1,10 @@
 import Foundation
 
 extension URLSession {
-    static func defaultSession(delegate: URLSessionDelegate? = nil, queue: OperationQueue? = nil) -> URLSession {
+    static func defaultSession(
+        delegate: URLSessionDelegate? = nil,
+        queue: OperationQueue? = nil
+    ) -> URLSession {
         URLSession(
             configuration: .defaultConfig,
             delegate: delegate,
@@ -21,7 +24,10 @@ extension URLSession {
         )
     }
 
-    static func ephemeralSession(delegate: URLSessionDelegate? = nil, queue: OperationQueue? = nil) -> URLSession {
+    static func ephemeralSession(
+        delegate: URLSessionDelegate? = nil,
+        queue: OperationQueue? = nil
+    ) -> URLSession {
         URLSession(
             configuration: .ephemeral,
             delegate: delegate,
@@ -29,7 +35,10 @@ extension URLSession {
         )
     }
 
-    static func cacheSession(delegate: URLSessionDelegate? = nil, queue: OperationQueue? = nil) -> URLSession {
+    static func cacheSession(
+        delegate: URLSessionDelegate? = nil,
+        queue: OperationQueue? = nil
+    ) -> URLSession {
         return URLSession(
             configuration: .cache,
             delegate: delegate,

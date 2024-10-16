@@ -1,6 +1,8 @@
 import Foundation
 
-public protocol NetworkRequestProtocol: NetworkEnvironmentProtocol, NetworkCacheProtocol {
+public protocol NetworkRequestProtocol: 
+    NetworkEnvironmentProtocol,
+    NetworkCacheProtocol {
     var urlPath: String { get }
     var httpMethod: NetworkRequestMethod { get }
     var urlComponents: URLComponents? { get }
@@ -52,7 +54,7 @@ public extension NetworkRequestProtocol {
     }
 
     func manageInternetConnectivityBasedOnCache(request: URLRequest) -> NetworkError? {
-        guard Network.isInternetReachable else {
+        guard CombineNetwork.isInternetReachable else {
             return .noInternet
         }
 

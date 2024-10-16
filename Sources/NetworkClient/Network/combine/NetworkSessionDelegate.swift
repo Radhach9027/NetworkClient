@@ -18,6 +18,7 @@ final class NetworkSessionDelegate: NSObject,
     var requestType: RequestType = .download
     private var pinning: SSLPinning?
     private var logger: NetworkLoggerProtocol?
+    var isSocketConnected: Bool = false
 
     init(
         pinning: SSLPinning? = nil,
@@ -74,6 +75,14 @@ final class NetworkSessionDelegate: NSObject,
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
         debugPrint("NetworkSessionDelegate === progress \(progress) === downloadTask")
         downloadProgressSubject.send(.progress(percentage: progress))
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didFinishCollecting metrics: URLSessionTaskMetrics
+    ) {
+        
     }
 
     func urlSession(
@@ -150,6 +159,7 @@ final class NetworkSessionDelegate: NSObject,
         didOpenWithProtocol protocol: String?
     ) {
         print("Web Socket did connect")
+        isSocketConnected = true
     }
 
     func urlSession(
@@ -159,6 +169,7 @@ final class NetworkSessionDelegate: NSObject,
         reason: Data?
     ) {
         print("Web Socket did disconnect")
+        isSocketConnected = false
     }
 }
 
@@ -170,7 +181,11 @@ private extension NetworkSessionDelegate {
         static let downloadToLocationMessage = "Failed to save the url to given location"
     }
 
-    func downloadError(error: Error, url: URL, session: URLSession) {
+    func downloadError(
+        error: Error,
+        url: URL,
+        session: URLSession
+    ) {
         let error: NetworkError = .init(
             title: .download,
             code: .downloadCode,
@@ -229,7 +244,11 @@ private extension NetworkSessionDelegate {
         uploadProgressSubject.send(completion: .finished)
     }
 
-    func save(to file: URL, downloadedUrl: URL, downloadTask: URLSessionDownloadTask) {
+    func save(
+        to file: URL,
+        downloadedUrl: URL,
+        downloadTask: URLSessionDownloadTask
+    ) {
         do {
             let destinationURL = file.appendingPathComponent(downloadTask.originalRequest!.url!.lastPathComponent)
             if FileManager.default.fileExists(atPath: destinationURL.path) {

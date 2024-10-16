@@ -6,6 +6,7 @@ public enum NetworkErrorMessage: Codable {
     case unknown
     case codableConversion
     case some(String)
+    case retryNeeded
 }
 
 extension NetworkErrorMessage {
@@ -16,6 +17,8 @@ extension NetworkErrorMessage {
             case .unknown: return "An unknown error occurred while processing request, please check and try again."
             case .codableConversion: return "Issue in converting NetworkErrors.json via codable model."
             case .some(let title): return title
+            case .retryNeeded: return "A transient error occurred. It’s advisable to retry after a brief wait, or if your network connection has stabilized."
+
         }
     }
 }

@@ -10,6 +10,7 @@ public enum NetworkErrorCode: Codable {
     case uploadCode // Download Error Code
     case socket // Websocket error code
     case some(Int) // Send custom code if needed
+    case retryNeeded
 }
 
 extension NetworkErrorCode {
@@ -23,6 +24,7 @@ extension NetworkErrorCode {
             case .downloadCode: return -222
             case .uploadCode: return -333
             case .socket: return -444
+            case .retryNeeded: return 1002
             case let .some(code): return code
         }
     }

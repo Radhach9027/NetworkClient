@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: Download Tasks
 
-public extension Network {
+public extension CombineNetwork {
     func download(
         for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue

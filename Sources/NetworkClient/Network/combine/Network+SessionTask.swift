@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: URLSession Tasks
 
-public extension Network {
+public extension CombineNetwork {
     func suspend(for request: URLRequest) {
         session.getAllTasks { task in
             task

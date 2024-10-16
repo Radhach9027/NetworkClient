@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-public protocol RequestProtocol {
+public protocol CombineRequestProtocol {
     func request(
         for request: NetworkRequestProtocol,
         receive: DispatchQueue
@@ -16,10 +16,15 @@ public protocol RequestProtocol {
     func serialRequests(
         for requests: [NetworkRequestProtocol],
         receive: DispatchQueue
-    ) -> PassthroughSubject<Data?, NetworkError>
+    ) -> AnyPublisher<Data?, NetworkError>
+    
+    func concurrentRequests(
+        for requests: [NetworkRequestProtocol],
+        receive: DispatchQueue
+    ) -> AnyPublisher<[Data?], NetworkError>
 }
 
-public protocol UploadProtocol {
+public protocol CombineUploadProtocol {
     func upload(
         with request: NetworkUploadRequestProtocol,
         receive: DispatchQueue
@@ -29,16 +34,26 @@ public protocol UploadProtocol {
         with request: NetworkMultipartUploadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<NetworkUploadResponse, NetworkError>
+    
+    func serialUpload(
+         with requests: [NetworkUploadRequestProtocol],
+         receive: DispatchQueue
+     ) -> AnyPublisher<NetworkUploadResponse, NetworkError>
+
+    func concurrentUpload(
+        with requests: [NetworkUploadRequestProtocol],
+        receive: DispatchQueue
+    ) -> AnyPublisher<[NetworkUploadResponse], NetworkError>
 }
 
-public protocol DownloadProtocol {
+public protocol CombineDownloadProtocol {
     func download(
         for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue
     ) -> PassthroughSubject<NetworkDownloadResponse, NetworkError>
 }
 
-public protocol NetworkSessionTaskProtocol {
+public protocol CombineNetworkSessionTaskProtocol {
     func suspend(for request: URLRequest)
     func resume(for request: URLRequest)
     func cancel(for request: URLRequest)
@@ -46,19 +61,21 @@ public protocol NetworkSessionTaskProtocol {
     func getAllTasks(completionHandler: @escaping @Sendable ([URLSessionTask]) -> Void)
 }
 
-public protocol NetworkWebSocketProtocol {
-    func start(for url: NetworkRequestProtocol, completion: @escaping (NetworkError?) -> Void)
-    func send(message: NetworkSocketMessage, completion: @escaping (NetworkError?) -> Void)
-    func receive() -> PassthroughSubject<NetworkSocketMessage, NetworkError>
-    func cancel(with closeCode: URLSessionWebSocketTask.CloseCode, reason: String?)
+public protocol CombineWebSocketProtocol {
+    func start(for request: NetworkRequestProtocol) -> AnyPublisher<Bool, Error>
+    func send(message: NetworkSocketMessage) -> AnyPublisher<Bool, Error>
+    func receive() -> AnyPublisher<NetworkSocketMessage, Error>
+    func cancel(
+        with closeCode: URLSessionWebSocketTask.CloseCode,
+        reason: String?
+    ) -> AnyPublisher<Bool, Error>
 }
 
 // MARK: Conforming Request, Upload, Download, URLSessionTask, WebSocket to NetworkProtocol as this has been exposed to host app.
-
-public protocol NetworkProtocol:
-    RequestProtocol,
-    UploadProtocol,
-    DownloadProtocol,
-    NetworkWebSocketProtocol,
-    NetworkSessionTaskProtocol
+public protocol CombineNetworkProtocol:
+    CombineRequestProtocol,
+    CombineUploadProtocol,
+    CombineDownloadProtocol,
+    CombineNetworkSessionTaskProtocol,
+    CombineWebSocketProtocol
 {}
