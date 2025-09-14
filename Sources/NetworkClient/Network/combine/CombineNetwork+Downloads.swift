@@ -3,7 +3,8 @@ import Foundation
 
 // MARK: Download Tasks
 
-public extension Network {
+@available(iOS 13.0, *)
+public extension CombineNetwork {
     func download(
         for request: NetworkDownloadRequestProtocol,
         receive: DispatchQueue

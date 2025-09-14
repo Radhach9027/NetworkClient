@@ -1,6 +1,6 @@
 import Foundation
 
-extension URLSessionTask {
+public extension URLSessionTask {
     func resumeTask() {
         resume()
     }

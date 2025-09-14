@@ -1,27 +1,20 @@
 import Combine
 import Foundation
 
-public enum SessionConfiguration {
-    case `default`(queue: OperationQueue? = nil)
-    case background(identifer: String, queue: OperationQueue? = nil)
-    case ephemeral(queue: OperationQueue? = nil)
-    case cache(queue: OperationQueue? = nil)
-}
-
-public final class Network {
-    private(set) var session: URLSessionProtocol
+@available(iOS 15.0, *)
+public final class AsyncNetwork {
+    private(set) var requestInterceptors: [AsyncNetworkRequestInterceptor] = []
+    private(set) var retryInterceptors: [AsyncNetworkRetryInterceptor] = []
+    private(set) var session: URLSessionAsyncProtocol
     private(set) var delegate: NetworkSessionDelegate
     private(set) var logger: NetworkLoggerProtocol?
     private(set) var urlSessionDidFinishEvents: ((URLSession) -> Void)?
-
+    public static let isInternetReachable: Bool = NetworkReachability.shared.isReachable
     var socketTask: URLSessionWebSocketTaskProtocol?
     var cancellable = Set<AnyCancellable>()
-    public static var isInternetReachable: Bool {
-        NetworkReachability.shared.isReachable
-    }
 
     private init(
-        session: URLSessionProtocol,
+        session: URLSessionAsyncProtocol,
         logger: NetworkLoggerProtocol? = nil,
         delegate: NetworkSessionDelegate,
         urlSessionDidFinishEvents: ((URLSession) -> Void)? = nil
@@ -33,9 +26,21 @@ public final class Network {
     }
 }
 
-// MARK: Network Intializers
+@available(iOS 15.0, *)
+public extension AsyncNetwork {
+    func add(requestInterceptor: AsyncNetworkRequestInterceptor) {
+        requestInterceptors.append(requestInterceptor)
+    }
 
-public extension Network {
+    func add(retryInterceptor: AsyncNetworkRetryInterceptor) {
+        retryInterceptors.append(retryInterceptor)
+    }
+}
+
+// MARK: AsyncNetwork Intializers
+
+@available(iOS 15.0, *)
+public extension AsyncNetwork {
     convenience init(
         config: SessionConfiguration,
         pinning: SSLPinning,
@@ -51,14 +56,29 @@ public extension Network {
         switch config {
         case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate, queue: queue),
+                session: URLSession.defaultSession(queue: queue),
                 logger: logger,
+                delegate: delegate
+            )
+        case let .defaultWithCustomTimeOuts(
+            _,
+            queue,
+            timeoutIntervalForRequest,
+            timeoutIntervalForResource
+        ):
+            let session = URLSession.sessionWithCustomTimeouts(
+                delegate: delegate,
+                queue: queue,
+                timeoutIntervalForRequest: timeoutIntervalForRequest,
+                timeoutIntervalForResource: timeoutIntervalForResource
+            )
+            self.init(
+                session: session,
                 delegate: delegate
             )
         case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
-                    delegate: delegate,
                     identifier: identifer,
                     queue: queue
                 ),
@@ -67,14 +87,13 @@ public extension Network {
             )
         case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
+                session: URLSession.ephemeralSession(queue: queue),
                 logger: logger,
                 delegate: delegate
             )
         case let .cache(queue):
             self.init(
-                session: URLSession.cacheSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.cacheSession(queue: queue),
                 delegate: delegate
             )
         }
@@ -89,30 +108,41 @@ public extension Network {
         switch config {
         case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.defaultSession(queue: queue),
+                delegate: delegate
+            )
+        case let .defaultWithCustomTimeOuts(
+            _,
+            queue,
+            timeoutIntervalForRequest,
+            timeoutIntervalForResource
+        ):
+            let session = URLSession.sessionWithCustomTimeouts(
+                delegate: delegate,
+                queue: queue,
+                timeoutIntervalForRequest: timeoutIntervalForRequest,
+                timeoutIntervalForResource: timeoutIntervalForResource
+            )
+            self.init(
+                session: session,
                 delegate: delegate
             )
         case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
-                    delegate: delegate,
                     identifier: identifer,
                     queue: queue
                 ),
-                logger: nil,
                 delegate: delegate
             )
         case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.ephemeralSession(queue: queue),
                 delegate: delegate
             )
         case let .cache(queue):
             self.init(
-                session: URLSession.cacheSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.cacheSession(queue: queue),
                 delegate: delegate
             )
         }
@@ -131,30 +161,41 @@ public extension Network {
         switch config {
         case let .default(queue):
             self.init(
-                session: URLSession.defaultSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.defaultSession(queue: queue),
+                delegate: delegate
+            )
+        case let .defaultWithCustomTimeOuts(
+            _,
+            queue,
+            timeoutIntervalForRequest,
+            timeoutIntervalForResource
+        ):
+            let session = URLSession.sessionWithCustomTimeouts(
+                delegate: delegate,
+                queue: queue,
+                timeoutIntervalForRequest: timeoutIntervalForRequest,
+                timeoutIntervalForResource: timeoutIntervalForResource
+            )
+            self.init(
+                session: session,
                 delegate: delegate
             )
         case let .background(identifer, queue):
             self.init(
                 session: URLSession.backgroundSession(
-                    delegate: delegate,
                     identifier: identifer,
                     queue: queue
                 ),
-                logger: nil,
                 delegate: delegate
             )
         case let .ephemeral(queue):
             self.init(
-                session: URLSession.ephemeralSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.ephemeralSession(queue: queue),
                 delegate: delegate
             )
         case let .cache(queue):
             self.init(
-                session: URLSession.cacheSession(delegate: delegate, queue: queue),
-                logger: nil,
+                session: URLSession.cacheSession(queue: queue),
                 delegate: delegate
             )
         }
@@ -162,5 +203,5 @@ public extension Network {
 }
 
 // MARK: Request, Upload, Download, URLSessionTask, WebSocket
-
-extension Network: NetworkProtocol {}
+@available(iOS 15.0, *)
+extension AsyncNetwork: AsyncNetworkProtocol {}

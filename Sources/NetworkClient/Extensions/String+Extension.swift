@@ -1,9 +1,7 @@
 import Foundation
 
-extension String {
-    static var empty: String {
-        ""
-    }
+public extension String {
+    static let empty = ""
 
     var sha256: String {
         if let stringData = data(using: String.Encoding.utf8) {

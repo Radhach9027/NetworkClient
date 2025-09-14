@@ -1,10 +1,19 @@
 import Foundation
 
-extension URLSessionConfiguration {
+public extension URLSessionConfiguration {
     static var defaultConfig: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
         configuration.allowsCellularAccess = true
-        configuration.waitsForConnectivity = true
+        configuration.timeoutIntervalForRequest = 5
+        configuration.timeoutIntervalForResource = 5
+        return configuration
+    }
+    
+    static var intervalConfig: (_ timeoutIntervalForRequest: Double, _ timeoutIntervalForResource: Double) -> URLSessionConfiguration = { timeoutIntervalForRequest, timeoutIntervalForResource in
+        let configuration = URLSessionConfiguration.default
+        configuration.allowsCellularAccess = true
+        configuration.timeoutIntervalForRequest = timeoutIntervalForRequest
+        configuration.timeoutIntervalForResource = timeoutIntervalForResource
         return configuration
     }
 
@@ -12,9 +21,10 @@ extension URLSessionConfiguration {
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
         configuration.sessionSendsLaunchEvents = true
         configuration.allowsCellularAccess = true
-        configuration.waitsForConnectivity = true
         configuration.isDiscretionary = true
         configuration.sessionSendsLaunchEvents = true
+        configuration.timeoutIntervalForRequest = 5
+        configuration.timeoutIntervalForResource = 5
         return configuration
     }
     
@@ -22,8 +32,11 @@ extension URLSessionConfiguration {
         URLCache.shared.memoryCapacity = 512 * 1024 * 1024
         let configuration = URLSessionConfiguration.default
         configuration.allowsCellularAccess = true
-        configuration.waitsForConnectivity = true
+        configuration.timeoutIntervalForRequest = 5
+        configuration.timeoutIntervalForResource = 5
         configuration.requestCachePolicy = .returnCacheDataElseLoad
+        configuration.timeoutIntervalForRequest = 3000
+        configuration.timeoutIntervalForResource = 3000
         return configuration
     }
 }

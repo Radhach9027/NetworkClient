@@ -1,6 +1,6 @@
 import UIKit
 
-extension URL {
+public extension URL {
     var isValid: Bool {
         return (
             (self.host != nil)

@@ -29,6 +29,7 @@ public protocol NetworkLoggerProtocol {
     )
 }
 
+@available(iOS 14.0, *)
 public struct NetworkLogger: NetworkLoggerProtocol {
     private var identifier: String
     private var category: LoggerCategory

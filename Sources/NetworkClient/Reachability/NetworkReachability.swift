@@ -1,83 +1,107 @@
 import Foundation
-import Reachability
+import Network
 
-extension Notification.Name {
-    static let ReachabilityStatusChanged = Notification.Name("ReachabilityStatusChangedNotification")
-}
-
-final class NetworkReachability {
-    enum ReachabilityStatus: Equatable {
+public final class NetworkReachability {
+    public enum ReachabilityStatus: Equatable {
         case connected
         case disconnected
     }
-
-    var reachabilityObserver: ((ReachabilityStatus) -> Void)?
-    private(set) var reachabilityStatus: ReachabilityStatus = .connected
-    private let reachability = try! Reachability()
-    static let shared = NetworkReachability()
-
-    private init() {
-        setupReachability()
+    
+    // Weak reference to avoid strong retain cycles
+    private class WeakObserver {
+        weak var observer: AnyObject?
+        
+        init(observer: AnyObject) {
+            self.observer = observer
+        }
     }
-
+    
+    // Store weak references to observers
+    private var reachabilityObservers: [WeakObserver] = []
+    private(set) var reachabilityStatus: ReachabilityStatus = .connected
+    public static let shared = NetworkReachability()
+    private let monitor: NWPathMonitor
+    private let queue: DispatchQueue
+    
+    private init() {
+        monitor = NWPathMonitor()
+        queue = DispatchQueue(label: "NetworkReachabilityQueue")
+        startNotifier()
+    }
+    
     deinit {
         stopNotifier()
     }
-
-    var isReachable: Bool {
-        return reachability.connection != .unavailable
+    
+    // Check if the device has an internet connection
+    public var isReachable: Bool {
+        return reachabilityStatus == .connected
     }
-
-    var isConnectedViaCellularOrWifi: Bool {
+    
+    // Check if the device is connected via Wi-Fi or Cellular
+    public var isConnectedViaCellularOrWifi: Bool {
         return isConnectedViaCellular || isConnectedViaWiFi
     }
-
-    var isConnectedViaCellular: Bool {
-        return reachability.connection == .cellular
+    
+    // Check if the device is connected via cellular
+    public var isConnectedViaCellular: Bool {
+        return monitor.currentPath.usesInterfaceType(.cellular)
     }
-
-    var isConnectedViaWiFi: Bool {
-        return reachability.connection == .wifi
+    
+    // Check if the device is connected via Wi-Fi
+    public var isConnectedViaWiFi: Bool {
+        return monitor.currentPath.usesInterfaceType(.wifi)
     }
-
-    func startNotifier() {
-        do {
-            try reachability.startNotifier()
-        } catch {
-            debugPrint(error.localizedDescription)
+    
+    // Start monitoring the network status
+    public func startNotifier() {
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                self.reachabilityStatus = .connected
+            } else {
+                self.reachabilityStatus = .disconnected
+            }
+            
+            // Notify all active observers
+            self.notifyObservers()
+        }
+        monitor.start(queue: queue)
+    }
+    
+    // Stop monitoring the network status
+    public func stopNotifier() {
+        monitor.cancel()
+    }
+    
+    // Add an observer
+    public func addObserver(
+        observer: AnyObject,
+        observerBlock: @escaping (ReachabilityStatus) -> Void
+    ) {
+        let weakObserver = WeakObserver(observer: observer)
+        reachabilityObservers.append(weakObserver)
+        observerBlock(self.reachabilityStatus)
+    }
+    
+    // Remove an observer (optional)
+    public func removeObserver(_ observer: AnyObject) {
+        reachabilityObservers.removeAll { weakObserver in
+            weakObserver.observer === observer
         }
     }
-
-    func stopNotifier() {
-        reachability.stopNotifier()
+    
+    // Notify all observers
+    private func notifyObservers() {
+        // Clean up nil references
+        reachabilityObservers = reachabilityObservers.filter { $0.observer != nil }
+        
+        // Notify all active observers
+        for weakObserver in reachabilityObservers {
+            guard let observer = weakObserver.observer else { continue }
+            if let reachabilityObserver = observer as? ((ReachabilityStatus) -> Void) {
+                reachabilityObserver(self.reachabilityStatus)
+            }
+        }
     }
 }
 
-private extension NetworkReachability {
-    func setupReachability() {
-        let reachabilityStatusObserver: ((Reachability) -> Void) = { [unowned self] (reachability: Reachability) in
-            self.updateReachabilityStatus(reachability.connection)
-        }
-        reachability.whenReachable = reachabilityStatusObserver
-        reachability.whenUnreachable = reachabilityStatusObserver
-    }
-
-    func updateReachabilityStatus(_ status: Reachability.Connection) {
-        switch status {
-        case .unavailable:
-            notifyReachabilityStatus(.disconnected)
-        case .cellular, .wifi:
-            notifyReachabilityStatus(.connected)
-        }
-    }
-
-    func notifyReachabilityStatus(_ status: ReachabilityStatus) {
-        reachabilityStatus = status
-        reachabilityObserver?(status)
-        NotificationCenter.default.post(
-            name: Notification.Name.ReachabilityStatusChanged,
-            object: nil,
-            userInfo: ["ReachabilityStatus": status]
-        )
-    }
-}

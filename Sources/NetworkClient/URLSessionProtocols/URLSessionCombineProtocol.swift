@@ -1,6 +1,7 @@
 import Foundation
 
-public protocol URLSessionProtocol: URLSessionWebSocketProtocol {
+@available(iOS 13.0, *)
+public protocol URLSessionCombineProtocol: URLSessionWebSocketProtocol {
     func dataTaskPublisher(for request: URLRequest) -> URLSession.DataTaskPublisher
     func downloadTask(with request: URLRequest) -> URLSessionDownloadTask
     func uploadTask(with request: URLRequest, from bodyData: Data) -> URLSessionUploadTask
@@ -9,4 +10,5 @@ public protocol URLSessionProtocol: URLSessionWebSocketProtocol {
     func flush(completionHandler: @escaping @Sendable () -> Void)
 }
 
-extension URLSession: URLSessionProtocol {}
+@available(iOS 13.0, *)
+extension URLSession: URLSessionCombineProtocol {}

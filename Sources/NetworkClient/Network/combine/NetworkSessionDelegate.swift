@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 
+@available(iOS 13.0, *)
 final class NetworkSessionDelegate: NSObject,
     URLSessionTaskDelegate,
     URLSessionDelegate,
@@ -18,6 +19,7 @@ final class NetworkSessionDelegate: NSObject,
     var requestType: RequestType = .download
     private var pinning: SSLPinning?
     private var logger: NetworkLoggerProtocol?
+    var isSocketConnected: Bool = false
 
     init(
         pinning: SSLPinning? = nil,
@@ -75,6 +77,14 @@ final class NetworkSessionDelegate: NSObject,
         debugPrint("NetworkSessionDelegate === progress \(progress) === downloadTask")
         downloadProgressSubject.send(.progress(percentage: progress))
     }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didFinishCollecting metrics: URLSessionTaskMetrics
+    ) {
+        
+    }
 
     func urlSession(
         _ session: URLSession,
@@ -82,7 +92,7 @@ final class NetworkSessionDelegate: NSObject,
         didFinishDownloadingTo location: URL
     ) {
         guard let givenLocation = saveToLocation else {
-            downloadProgressSubject.send(.response(data: location))
+            downloadProgressSubject.send(.response(data: location, loggerString: "", endPoint: nil))
             downloadProgressSubject.send(completion: .finished)
             return
         }
@@ -112,7 +122,7 @@ final class NetworkSessionDelegate: NSObject,
         dataTask: URLSessionDataTask,
         didReceive data: Data
     ) {
-        uploadProgressSubject.send(.response(data: data))
+        uploadProgressSubject.send(.response(data: data, loggerString: ""))
         uploadProgressSubject.send(completion: .finished)
     }
 
@@ -150,6 +160,7 @@ final class NetworkSessionDelegate: NSObject,
         didOpenWithProtocol protocol: String?
     ) {
         print("Web Socket did connect")
+        isSocketConnected = true
     }
 
     func urlSession(
@@ -159,9 +170,11 @@ final class NetworkSessionDelegate: NSObject,
         reason: Data?
     ) {
         print("Web Socket did disconnect")
+        isSocketConnected = false
     }
 }
 
+@available(iOS 13.0, *)
 private extension NetworkSessionDelegate {
     enum Constants {
         static let downloadFailedMessage = "Failed to download the given url = %@"
@@ -170,7 +183,11 @@ private extension NetworkSessionDelegate {
         static let downloadToLocationMessage = "Failed to save the url to given location"
     }
 
-    func downloadError(error: Error, url: URL, session: URLSession) {
+    func downloadError(
+        error: Error,
+        url: URL,
+        session: URLSession
+    ) {
         let error: NetworkError = .init(
             title: .download,
             code: .downloadCode,
@@ -229,7 +246,11 @@ private extension NetworkSessionDelegate {
         uploadProgressSubject.send(completion: .finished)
     }
 
-    func save(to file: URL, downloadedUrl: URL, downloadTask: URLSessionDownloadTask) {
+    func save(
+        to file: URL,
+        downloadedUrl: URL,
+        downloadTask: URLSessionDownloadTask
+    ) {
         do {
             let destinationURL = file.appendingPathComponent(downloadTask.originalRequest!.url!.lastPathComponent)
             if FileManager.default.fileExists(atPath: destinationURL.path) {
