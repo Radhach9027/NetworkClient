@@ -1,3 +1,4 @@
+import Foundation
 
 struct RetriableRequest: NetworkRequestProtocol, NetworkDownloadRequestProtocol {
     var saveDownloadedUrlToLocation: URL?

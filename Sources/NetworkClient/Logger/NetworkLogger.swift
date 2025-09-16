@@ -27,6 +27,12 @@ public protocol NetworkLoggerProtocol {
         type: OSLogType,
         privacy: LoggerPrivacy
     )
+    
+    func log(
+        _ message: String,
+        type: OSLogType,
+        privacy: LoggerPrivacy
+    )
 }
 
 @available(iOS 14.0, *)
@@ -67,6 +73,21 @@ public struct NetworkLogger: NetworkLoggerProtocol {
             logger.log(level: type, "NetworkError: \(errorString, privacy: .private)")
         case .encrypt:
             logger.log(level: type, "NetworkError: \(errorString, privacy: .private(mask: .hash))")
+        }
+    }
+    
+    public func log(
+        _ message: String,
+        type: OSLogType = .default,
+        privacy: LoggerPrivacy = .encapsulate
+    ) {
+        switch privacy {
+            case .open:
+                logger.log(level: type, "\(message, privacy: .public)")
+            case .encapsulate:
+                logger.log(level: type, "\(message, privacy: .private)")
+            case .encrypt:
+                logger.log(level: type, "\(message, privacy: .private(mask: .hash))")
         }
     }
 }
